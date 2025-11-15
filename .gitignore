@@ -1,0 +1,351 @@
+# =============================================================================
+# Odoo Community Edition - Victorian Monkey
+# .gitignore - File da escludere da Git
+# =============================================================================
+
+# =============================================================================
+# CRITICI - Dati Sensibili (NON COMMITTARE MAI!)
+# =============================================================================
+
+# File di configurazione con password e credenziali
+.env
+config/odoo.conf
+
+# Certificati SSL
+traefik/acme.json
+
+# Backup contenenti dati sensibili
+*.dump
+*.sql
+*.backup
+backups/
+
+# =============================================================================
+# Dati Persistenti e Volumi Docker
+# =============================================================================
+
+# Filestore Odoo (file caricati dagli utenti)
+data/filestore/
+data/*/
+
+# Database dumps
+*.dump
+*.backup
+
+# =============================================================================
+# Log Files
+# =============================================================================
+
+# Log Odoo
+*.log
+logs/
+*.log.*
+
+# =============================================================================
+# Moduli di Terze Parti (opzionale)
+# =============================================================================
+
+# Se usi git submodule per OCA o altri, puoi committarli
+# Altrimenti escludili e gestiscili separatamente
+
+# Moduli OCA (decommentare se non vuoi tracciare)
+# addons/server-tools/
+# addons/web/
+# addons/reporting-engine/
+# addons/rest-framework/
+# addons/account-*/
+# addons/oca-*/
+
+# Tutti i moduli scaricati (aggressivo - decommenta se preferisci)
+# addons/*/
+# !addons/README.md
+# !addons/QUICK_START.md
+# !addons/my_custom_module/  # Escludi i tuoi moduli custom
+
+# =============================================================================
+# Python
+# =============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# =============================================================================
+# IDE e Editor
+# =============================================================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Eclipse
+.project
+.pydevproject
+.settings/
+
+# NetBeans
+nbproject/
+
+# =============================================================================
+# Sistema Operativo
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# Docker
+# =============================================================================
+
+# Non ignorare docker-compose.yml (lo vogliamo nel repo)
+# Ma ignora override locali
+docker-compose.override.yml
+docker-compose.local.yml
+
+# =============================================================================
+# Temporary Files
+# =============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.save
+*~
+
+# Compressed files (se non necessari)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# =============================================================================
+# Odoo Specifici
+# =============================================================================
+
+# Odoo session files
+sessions/
+
+# Odoo filestore (già coperto sopra ma ripetiamo)
+filestore/
+
+# Test reports
+test_reports/
+
+# =============================================================================
+# ECCEZIONI - File da Includere (override degli ignore precedenti)
+# =============================================================================
+
+# Mantieni i file .example
+!.env.example
+!config/.gitkeep
+!conf/odoo.conf.example
+
+# Mantieni README
+!README.md
+!*/README.md
+!QUICK_START.md
+
+# Mantieni le directory vuote con .gitkeep
+!**/.gitkeep
+
+# Mantieni script utili
+!setup.sh
+!backup.sh
+!restore.sh
+
+# =============================================================================
+# Note
+# =============================================================================
+
+# Questo .gitignore protegge:
+# 1. Credenziali e password (.env, odoo.conf)
+# 2. Certificati SSL (acme.json)
+# 3. Dati degli utenti (filestore, backup)
+# 4. File temporanei e cache
+# 5. File IDE/Editor personali
+#
+# Ricorda di committare:
+# - docker-compose.yml
+# - .env.example
+# - conf/odoo.conf.example
+# - Script di setup e documentazione
+# - I tuoi moduli custom in addons/ (se vuoi)

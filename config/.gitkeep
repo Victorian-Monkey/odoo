@@ -1,0 +1,3 @@
+# This file keeps the config directory in git
+# The actual odoo.conf file is ignored for security (contains passwords)
+# Use conf/odoo.conf.example as template

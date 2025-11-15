@@ -1,0 +1,130 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.file.directory=/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.le.acme.email=ops@example.com"
+      - "--certificatesresolvers.le.acme.storage=/acme.json"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/dynamic.yml:/dynamic/dynamic.yml:ro
+      - ./traefik/acme.json:/acme.json
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - ./data/redis:/data
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-01T00-00-00Z
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    volumes:
+      - ./data/minio:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+
+  odoo-web:
+    image: odoo:19.0
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./addons:/mnt/custom-addons:ro
+      - ./data/filestore:/var/lib/odoo
+    command: >
+      --workers=6
+      --max-cron-threads=2
+      --http-interface=0.0.0.0
+      --proxy-mode=True
+      --longpolling-port=8072
+      --limit-time-cpu=1200
+      --limit-time-real=2400
+      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.odoo.rule=${TRAEFIK_HOSTS}"
+      - "traefik.http.routers.odoo.entrypoints=websecure"
+      - "traefik.http.routers.odoo.tls.certresolver=le"
+      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
+      - "traefik.http.routers.odoo-longpolling.rule=${TRAEFIK_HOSTS} && PathPrefix(`/longpolling`)"
+      - "traefik.http.routers.odoo-longpolling.entrypoints=websecure"
+      - "traefik.http.routers.odoo-longpolling.tls.certresolver=le"
+      - "traefik.http.services.odoo-longpolling.loadbalancer.server.port=8072"
+    ports:
+      - "8069:8069"
+    restart: unless-stopped
+
+  odoo-cron:
+    image: odoo:19.0
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./addons:/mnt/custom-addons:ro
+      - ./data/filestore:/var/lib/odoo
+    command: >
+      --workers=0
+      --max-cron-threads=2
+      --http-interface=0.0.0.0
+      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
+    restart: unless-stopped
+
+  # Optional monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./data/prometheus:/prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.victorianmonkey.org`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=le"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file:
+      - .env
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.victorianmonkey.org`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=le"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

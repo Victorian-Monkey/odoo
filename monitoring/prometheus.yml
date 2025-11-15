@@ -1,0 +1,145 @@
+# =============================================================================
+# PROMETHEUS CONFIGURATION
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'victorianmonkey-prod'
+    environment: 'production'
+
+# Alertmanager configuration (opzionale)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+# rule_files:
+#   - "alerts/*.yml"
+
+# =============================================================================
+# SCRAPE CONFIGURATIONS
+# =============================================================================
+scrape_configs:
+  # ---------------------------------------------------------------------------
+  # Prometheus self-monitoring
+  # ---------------------------------------------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ---------------------------------------------------------------------------
+  # Redis monitoring
+  # ---------------------------------------------------------------------------
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          service: 'redis'
+
+  # ---------------------------------------------------------------------------
+  # MinIO monitoring (se espone metriche)
+  # ---------------------------------------------------------------------------
+  - job_name: 'minio'
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ['minio:9000']
+        labels:
+          service: 'minio'
+
+  # ---------------------------------------------------------------------------
+  # Traefik monitoring
+  # ---------------------------------------------------------------------------
+  # Per abilitare, aggiungi questi comandi a Traefik in docker-compose:
+  # - "--metrics.prometheus=true"
+  # - "--metrics.prometheus.entrypoint=metrics"
+  # - "--entrypoints.metrics.address=:8082"
+  #
+  # - job_name: 'traefik'
+  #   static_configs:
+  #     - targets: ['traefik:8082']
+  #       labels:
+  #         service: 'traefik'
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL monitoring (database esterno)
+  # ---------------------------------------------------------------------------
+  # Richiede postgres_exporter come sidecar
+  #
+  # - job_name: 'postgresql'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+  #       labels:
+  #         service: 'postgresql'
+
+  # ---------------------------------------------------------------------------
+  # Node Exporter - System metrics (CPU, RAM, Disk, Network)
+  # ---------------------------------------------------------------------------
+  # Aggiungi al docker-compose:
+  #
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   command:
+  #     - '--path.rootfs=/host'
+  #   volumes:
+  #     - '/:/host:ro,rslave'
+  #   ports:
+  #     - "9100:9100"
+  #   restart: unless-stopped
+  #
+  # - job_name: 'node-exporter'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+  #       labels:
+  #         service: 'node-exporter'
+  #         instance: 'vps-victorianmonkey'
+
+  # ---------------------------------------------------------------------------
+  # cAdvisor - Container metrics (opzionale ma consigliato)
+  # ---------------------------------------------------------------------------
+  # Aggiungi al docker-compose:
+  #
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
+  #     - /dev/disk/:/dev/disk:ro
+  #   ports:
+  #     - "8080:8080"
+  #   privileged: true
+  #   restart: unless-stopped
+  #
+  # - job_name: 'cadvisor'
+  #   static_configs:
+  #     - targets: ['cadvisor:8080']
+  #       labels:
+  #         service: 'cadvisor'
+
+  # ---------------------------------------------------------------------------
+  # Odoo metrics (custom exporter necessario)
+  # ---------------------------------------------------------------------------
+  # Odoo non espone metriche Prometheus di default
+  # Puoi usare un custom exporter o integrare uno script Python
+  #
+  # - job_name: 'odoo'
+  #   static_configs:
+  #     - targets: ['odoo-web:8069']
+  #       labels:
+  #         service: 'odoo'
+
+# =============================================================================
+# REMOTE WRITE (opzionale - per backup metrics su servizio esterno)
+# =============================================================================
+# remote_write:
+#   - url: "https://your-remote-prometheus/api/v1/write"
+#     basic_auth:
+#       username: "user"
+#       password: "pass"

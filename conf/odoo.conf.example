@@ -1,0 +1,175 @@
+[options]
+# =============================================================================
+# ADMIN & SECURITY
+# =============================================================================
+# Master password per gestire i database (CAMBIARE IN PRODUZIONE!)
+admin_passwd = CHANGE_ME_MASTER_PASSWORD
+
+# Filtraggio database per multi-tenancy (esempio: ^%d$ usa il subdomain)
+# dbfilter = ^%d$
+
+# Lista database da mostrare (lasciare vuoto per mostrare tutti)
+# list_db = False
+
+
+# =============================================================================
+# DATABASE CONFIGURATION (Esterno)
+# =============================================================================
+db_host = your-external-db-host.com
+db_user = odoo
+db_password = your_secure_db_password
+db_port = 5432
+db_name = False
+db_sslmode = prefer
+db_maxconn = 64
+db_template = template0
+
+
+# =============================================================================
+# ADDONS PATH (Odoo Community + Custom)
+# =============================================================================
+addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
+
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+# HTTP
+http_interface = 0.0.0.0
+http_port = 8069
+proxy_mode = True
+
+# Longpolling per notifiche real-time
+longpolling_port = 8072
+
+# Workers (0 = threaded mode, >0 = multiprocess)
+# Consigliato: (CPU cores * 2) + 1
+workers = 6
+
+# Cron threads per worker
+max_cron_threads = 2
+
+
+# =============================================================================
+# PERFORMANCE & LIMITS
+# =============================================================================
+# Timeout limiti CPU e Real (in secondi)
+limit_time_cpu = 1200
+limit_time_real = 2400
+
+# Limiti di memoria per worker (in bytes)
+# Soft: 2GB, Hard: 2.5GB
+limit_memory_soft = 2147483648
+limit_memory_hard = 2684354560
+
+# Limite richieste per worker prima del restart
+limit_request = 8192
+
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+# Log level: debug, debug_rpc, debug_sql, info, warning, error, critical
+log_level = info
+log_handler = :INFO
+
+# Log file (opzionale, lasciare vuoto per stdout)
+# logfile = /var/log/odoo/odoo.log
+# logrotate = True
+
+
+# =============================================================================
+# SESSION & CACHE
+# =============================================================================
+# Session store: filesystem o database
+# server_wide_modules = base,web
+
+# Cache Redis (opzionale ma consigliato per produzione)
+# Decommenta queste linee se usi Redis
+# enable_redis = True
+# redis_host = redis
+# redis_port = 6379
+# redis_dbindex = 1
+# redis_pass = False
+
+
+# =============================================================================
+# FILE STORAGE
+# =============================================================================
+# Directory per filestore
+data_dir = /var/lib/odoo
+
+# Object Storage S3/MinIO (opzionale)
+# Decommenta e configura se usi MinIO/S3 per gli attachments
+# s3_bucket = odoo-filestore
+# s3_endpoint_url = http://minio:9000
+# s3_access_key = minioadmin
+# s3_secret_key = minioadmin
+
+
+# =============================================================================
+# EMAIL CONFIGURATION
+# =============================================================================
+# SMTP outgoing mail server
+# smtp_server = smtp.gmail.com
+# smtp_port = 587
+# smtp_ssl = True
+# smtp_user = your-email@gmail.com
+# smtp_password = your-app-password
+
+# Email "from" predefinita
+# email_from = noreply@your-company.com
+
+
+# =============================================================================
+# INTERNATIONALIZATION
+# =============================================================================
+# Lingue disponibili (lasciare vuoto per tutte)
+# load_language = it_IT,en_US
+
+
+# =============================================================================
+# SECURITY & GEOLOCATION
+# =============================================================================
+# GeoIP database path (per geolocalizzazione)
+# geoip_database = /usr/share/GeoIP/GeoLite2-City.mmdb
+
+
+# =============================================================================
+# DEVELOPMENT (disabilitare in produzione!)
+# =============================================================================
+# Auto-reload quando i file cambiano (SOLO per sviluppo)
+# dev_mode = False
+
+# Debug mode (SOLO per sviluppo)
+# debug_mode = False
+
+# Test mode
+# test_enable = False
+
+
+# =============================================================================
+# SERVER WIDE MODULES
+# =============================================================================
+# Server wide modules (base e web sono di default)
+server_wide_modules = base,web
+
+# Workers per servizi enterprise (se necessario)
+# gevent_port = 8072
+
+
+# =============================================================================
+# ADVANCED
+# =============================================================================
+# CSV import limit
+csv_internal_sep = ,
+
+# Unaccent (per ricerche senza accenti)
+unaccent = True
+
+# Transient model cleanup
+osv_memory_age_limit = 1.0
+osv_memory_count_limit = False
+
+# HTTP timeout
+http_enable = True
