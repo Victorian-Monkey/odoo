@@ -59,7 +59,7 @@ check_prerequisites() {
     fi
 
     # Check Docker Compose
-    if command -v docker-compose &> /dev/null; then
+    if command -v docker compose &> /dev/null; then
         print_success "Docker Compose is installed: $(docker-compose --version)"
     else
         print_error "Docker Compose is not installed!"
