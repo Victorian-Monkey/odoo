@@ -9,6 +9,7 @@
 
 # File di configurazione con password e credenziali
 .env
+conf/odoo.conf
 config/odoo.conf
 
 # Certificati SSL
