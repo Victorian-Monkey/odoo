@@ -135,6 +135,20 @@ create_directories() {
         sudo chmod -R 755 data/n8n
         print_success "n8n permissions set"
     fi
+
+    # Ollama (runs as user - 1000:1000)
+    if [ -d "data/ollama" ]; then
+        sudo chown -R 1000:1000 data/ollama
+        sudo chmod -R 755 data/ollama
+        print_success "Ollama permissions set"
+    fi
+
+    # Ollama WebUI (runs as user - 1000:1000)
+    if [ -d "data/ollama-webui" ]; then
+        sudo chown -R 1000:1000 data/ollama-webui
+        sudo chmod -R 755 data/ollama-webui
+        print_success "Ollama WebUI permissions set"
+    fi
 }
 
 # Setup Traefik

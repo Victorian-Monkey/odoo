@@ -260,6 +260,22 @@ fix_permissions() {
         print_success "n8n permissions fixed"
     fi
 
+    # Fix Ollama permissions (runs as user - 1000:1000)
+    if [ -d "data/ollama" ]; then
+        print_info "Setting permissions for Ollama data..."
+        sudo chown -R 1000:1000 data/ollama
+        sudo chmod -R 755 data/ollama
+        print_success "Ollama permissions fixed"
+    fi
+
+    # Fix Ollama WebUI permissions (runs as user - 1000:1000)
+    if [ -d "data/ollama-webui" ]; then
+        print_info "Setting permissions for Ollama WebUI data..."
+        sudo chown -R 1000:1000 data/ollama-webui
+        sudo chmod -R 755 data/ollama-webui
+        print_success "Ollama WebUI permissions fixed"
+    fi
+
     print_success "All data directory permissions fixed"
 }
 
