@@ -214,6 +214,45 @@ pull_images() {
     fi
 }
 
+# Fix data directories permissions
+fix_permissions() {
+    print_header "Fixing Data Directory Permissions"
+
+    # Create directories if they don't exist
+    mkdir -p data/prometheus
+    mkdir -p data/grafana
+    mkdir -p data/n8n
+    mkdir -p data/redis
+    mkdir -p data/minio
+    mkdir -p data/filestore
+
+    # Fix Prometheus permissions (runs as nobody:nobody - 65534:65534)
+    if [ -d "data/prometheus" ]; then
+        print_info "Setting permissions for Prometheus data..."
+        sudo chown -R 65534:65534 data/prometheus
+        chmod -R 755 data/prometheus
+        print_success "Prometheus permissions fixed"
+    fi
+
+    # Fix Grafana permissions (runs as grafana:grafana - 472:472)
+    if [ -d "data/grafana" ]; then
+        print_info "Setting permissions for Grafana data..."
+        sudo chown -R 472:472 data/grafana
+        chmod -R 755 data/grafana
+        print_success "Grafana permissions fixed"
+    fi
+
+    # Fix n8n permissions (runs as node:node - 1000:1000)
+    if [ -d "data/n8n" ]; then
+        print_info "Setting permissions for n8n data..."
+        sudo chown -R 1000:1000 data/n8n
+        chmod -R 755 data/n8n
+        print_success "n8n permissions fixed"
+    fi
+
+    print_success "All data directory permissions fixed"
+}
+
 # Restart services
 restart_services() {
     print_header "Restarting Docker Services"
@@ -225,6 +264,9 @@ restart_services() {
         print_error "Failed to stop services!"
         exit 1
     fi
+
+    # Fix permissions before starting
+    fix_permissions
 
     echo ""
     print_info "Starting services..."
@@ -290,6 +332,7 @@ show_summary() {
     echo "  • Odoo: ${CYAN}https://victorianmonkey.org${NC}"
     echo "  • Grafana: ${CYAN}https://grafana.victorianmonkey.org${NC}"
     echo "  • Prometheus: ${CYAN}https://prometheus.victorianmonkey.org${NC}"
+    echo "  • n8n: ${CYAN}https://n8n.victorianmonkey.org${NC}"
     echo ""
 
     print_info "Useful commands:"

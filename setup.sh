@@ -87,6 +87,7 @@ create_directories() {
         "data/minio"
         "data/prometheus"
         "data/grafana"
+        "data/n8n"
         "traefik"
         "monitoring"
         "addons"
@@ -101,6 +102,30 @@ create_directories() {
             print_info "Directory already exists: $dir"
         fi
     done
+
+    # Fix permissions for service-specific directories
+    print_info "Setting correct permissions for data directories..."
+
+    # Prometheus (runs as nobody:nobody - 65534:65534)
+    if [ -d "data/prometheus" ]; then
+        sudo chown -R 65534:65534 data/prometheus
+        chmod -R 755 data/prometheus
+        print_success "Prometheus permissions set"
+    fi
+
+    # Grafana (runs as grafana:grafana - 472:472)
+    if [ -d "data/grafana" ]; then
+        sudo chown -R 472:472 data/grafana
+        chmod -R 755 data/grafana
+        print_success "Grafana permissions set"
+    fi
+
+    # n8n (runs as node:node - 1000:1000)
+    if [ -d "data/n8n" ]; then
+        sudo chown -R 1000:1000 data/n8n
+        chmod -R 755 data/n8n
+        print_success "n8n permissions set"
+    fi
 }
 
 # Setup Traefik
