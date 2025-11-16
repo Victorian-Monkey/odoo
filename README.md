@@ -262,6 +262,21 @@ pg_restore -h your-postgres-host -U odoo -d new_database backup.dump
 tar -xzf filestore_backup.tar.gz -C data/
 ```
 
+### Update da Git
+
+```bash
+# Aggiorna il progetto e riavvia servizi
+./update.sh
+
+# Lo script farà automaticamente:
+# 1. Backup configurazione corrente
+# 2. Git pull delle ultime modifiche
+# 3. Stash modifiche locali (opzionale)
+# 4. Pull nuove immagini Docker
+# 5. Restart servizi
+# 6. Verifica configurazioni aggiornate
+```
+
 ## 📊 Monitoring
 
 ### Prometheus
@@ -392,7 +407,40 @@ odoo-web:
 
 ## 🔄 Updates
 
-### Update Odoo
+### Update Automatico (Consigliato)
+
+```bash
+# Script automatico che fa tutto
+./update.sh
+```
+
+Lo script `update.sh` esegue automaticamente:
+- ✅ Backup della configurazione corrente
+- ✅ Git pull delle ultime modifiche
+- ✅ Gestione modifiche locali (stash)
+- ✅ Pull immagini Docker aggiornate
+- ✅ Restart servizi
+- ✅ Controllo aggiornamenti configurazione
+- ✅ Display log e status
+
+### Update Manuale
+
+#### Update Progetto da Git
+```bash
+# Backup configurazione
+cp .env backups/.env.backup
+cp config/odoo.conf backups/odoo.conf.backup
+
+# Pull modifiche
+git pull origin main
+
+# Riavvia servizi
+docker-compose down
+docker-compose pull
+docker-compose up -d
+```
+
+#### Update Solo Odoo
 
 ```bash
 # Backup prima!
@@ -400,12 +448,12 @@ docker-compose down
 docker pull odoo:19.0
 docker-compose up -d
 
-# Update database
+# Update database (se necessario)
 docker exec vm-odoo-odoo-web-1 odoo -u all -d your_database --stop-after-init
 docker-compose restart odoo-web
 ```
 
-### Update Altri Servizi
+#### Update Altri Servizi
 
 ```bash
 docker-compose pull
