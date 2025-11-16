@@ -154,38 +154,38 @@ services:
       - "5678:5678"
     restart: unless-stopped
 
-  ollama:
-    image: ollama/ollama:0.12.11
-    user: "1000:1000"
-    volumes:
-      - ./data/ollama:/root/.ollama
-    restart: unless-stopped
-    # Nessuna porta esposta pubblicamente - solo accesso interno
+  # ollama:
+  #   image: ollama/ollama:0.12.11
+  #   user: "1000:1000"
+  #   volumes:
+  #     - ./data/ollama:/root/.ollama
+  #   restart: unless-stopped
+  #   # Nessuna porta esposta pubblicamente - solo accesso interno
 
-  ollama-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    user: "1000:1000"
-    depends_on:
-      - ollama
-    env_file:
-      - .env
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - WEBUI_AUTH=true
-      - WEBUI_SECRET_KEY=${OLLAMA_WEBUI_SECRET_KEY}
-      - WEBUI_NAME=Victorian Monkey AI
-    volumes:
-      - ./data/ollama-webui:/app/backend/data
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ollama-webui.rule=Host(`ai.victorianmonkey.org`)"
-      - "traefik.http.routers.ollama-webui.entrypoints=websecure"
-      - "traefik.http.routers.ollama-webui.tls.certresolver=le"
-      - "traefik.http.services.ollama-webui.loadbalancer.server.port=8080"
-      # Basic Auth con Traefik come ulteriore livello di sicurezza
-      - "traefik.http.routers.ollama-webui.middlewares=ollama-auth"
-      - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_BASIC_AUTH}"
-    restart: unless-stopped
+  # ollama-webui:
+  #   image: ghcr.io/open-webui/open-webui:main
+  #   user: "1000:1000"
+  #   depends_on:
+  #     - ollama
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - OLLAMA_BASE_URL=http://ollama:11434
+  #     - WEBUI_AUTH=true
+  #     - WEBUI_SECRET_KEY=${OLLAMA_WEBUI_SECRET_KEY}
+  #     - WEBUI_NAME=Victorian Monkey AI
+  #   volumes:
+  #     - ./data/ollama-webui:/app/backend/data
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.ollama-webui.rule=Host(`ai.victorianmonkey.org`)"
+  #     - "traefik.http.routers.ollama-webui.entrypoints=websecure"
+  #     - "traefik.http.routers.ollama-webui.tls.certresolver=le"
+  #     - "traefik.http.services.ollama-webui.loadbalancer.server.port=8080"
+  #     # Basic Auth con Traefik come ulteriore livello di sicurezza
+  #     - "traefik.http.routers.ollama-webui.middlewares=ollama-auth"
+  #     - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_BASIC_AUTH}"
+  #   restart: unless-stopped
 
 networks:
   default:
