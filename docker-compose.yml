@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   traefik:
     image: traefik:v3.1
@@ -57,7 +55,7 @@ services:
       --workers=6
       --max-cron-threads=2
       --http-interface=0.0.0.0
-      --proxy-mode=True
+      --proxy-mode
       --longpolling-port=8072
       --limit-time-cpu=1200
       --limit-time-real=2400
@@ -90,6 +88,7 @@ services:
       --workers=0
       --max-cron-threads=2
       --http-interface=0.0.0.0
+      --proxy-mode
       --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
     restart: unless-stopped
 

@@ -105,13 +105,13 @@ sudo ufw enable
 
 ```bash
 # Avvia tutti i servizi
-docker-compose up -d
+docker compose up -d
 
 # Controlla i log
-docker-compose logs -f odoo-web
+docker compose logs -f odoo-web
 
 # Verifica lo stato
-docker-compose ps
+docker compose ps
 ```
 
 ### 7. Primo Accesso
@@ -195,22 +195,22 @@ Il `admin_passwd` in `odoo.conf` e `.env` è **CRITICO**:
 
 ```bash
 # Avvia stack
-docker-compose up -d
+docker compose up -d
 
 # Ferma stack
-docker-compose down
+docker compose down
 
 # Riavvia solo Odoo
-docker-compose restart odoo-web
+docker compose restart odoo-web
 
 # Visualizza log in tempo reale
-docker-compose logs -f odoo-web
+docker compose logs -f odoo-web
 
 # Visualizza tutti i log
-docker-compose logs -f
+docker compose logs -f
 
 # Status servizi
-docker-compose ps
+docker compose ps
 ```
 
 ### Odoo Commands
@@ -293,13 +293,13 @@ tar -xzf filestore_backup.tar.gz -C data/
 
 ```bash
 # Errori Odoo
-docker-compose logs odoo-web | grep ERROR
+docker compose logs odoo-web | grep ERROR
 
 # Traffico Traefik
-docker-compose logs traefik
+docker compose logs traefik
 
 # Tutti gli errori
-docker-compose logs | grep -i error
+docker compose logs | grep -i error
 ```
 
 ## 🎨 Sviluppo Addons
@@ -321,7 +321,7 @@ mkdir models views security
 # Sviluppa il tuo modulo...
 
 # Installa in Odoo
-docker-compose restart odoo-web
+docker compose restart odoo-web
 # Poi dall'interfaccia Odoo: Apps > Update Apps List > Cerca "my_module"
 ```
 
@@ -331,7 +331,7 @@ docker-compose restart odoo-web
 
 ```bash
 # Controlla i log
-docker-compose logs odoo-web
+docker compose logs odoo-web
 
 # Errori comuni:
 # - Database non raggiungibile: verifica HOST, USER, PASSWORD in .env
@@ -346,7 +346,7 @@ docker-compose logs odoo-web
 dig victorianmonkey.org
 
 # Controlla log Traefik
-docker-compose logs traefik
+docker compose logs traefik
 
 # Verifica acme.json permessi
 ls -la traefik/acme.json  # Deve essere 600
@@ -435,29 +435,29 @@ cp config/odoo.conf backups/odoo.conf.backup
 git pull origin main
 
 # Riavvia servizi
-docker-compose down
-docker-compose pull
-docker-compose up -d
+docker compose down
+docker compose pull
+docker compose up -d
 ```
 
 #### Update Solo Odoo
 
 ```bash
 # Backup prima!
-docker-compose down
+docker compose down
 docker pull odoo:19.0
-docker-compose up -d
+docker compose up -d
 
 # Update database (se necessario)
 docker exec vm-odoo-odoo-web-1 odoo -u all -d your_database --stop-after-init
-docker-compose restart odoo-web
+docker compose restart odoo-web
 ```
 
 #### Update Altri Servizi
 
 ```bash
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
 ## 📚 Documentazione Utile

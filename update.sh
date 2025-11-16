@@ -198,7 +198,7 @@ check_config_updates() {
 pull_images() {
     print_header "Pulling Latest Docker Images"
 
-    if docker-compose pull; then
+    if docker compose pull; then
         print_success "Docker images updated"
     else
         print_warning "Failed to pull some images (continuing anyway)"
@@ -210,12 +210,12 @@ restart_services() {
     print_header "Restarting Docker Services"
 
     print_info "Stopping services..."
-    docker-compose down
+    docker compose down
     print_success "Services stopped"
 
     echo ""
     print_info "Starting services..."
-    docker-compose up -d
+    docker compose up -d
     print_success "Services started"
 
     echo ""
@@ -224,18 +224,18 @@ restart_services() {
 
     # Show status
     echo ""
-    docker-compose ps
+    docker compose ps
 }
 
 # Show logs
 show_logs() {
     print_header "Service Logs (last 20 lines)"
 
-    docker-compose logs --tail=20
+    docker compose logs --tail=20
 
     echo ""
     print_info "To follow logs in real-time, run:"
-    echo "  ${GREEN}docker-compose logs -f${NC}"
+    echo "  ${GREEN}docker compose logs -f${NC}"
 }
 
 # Apply stashed changes

@@ -426,7 +426,7 @@ access_my_model_line_user,my.model.line.user,model_my_model_line,base.group_user
 
 ```bash
 # Riavvia Odoo in modalità update
-docker-compose restart odoo-web
+docker compose restart odoo-web
 
 # Oppure esegui l'update dal container
 docker exec -it vm-odoo-odoo-web-1 odoo \
@@ -435,7 +435,7 @@ docker exec -it vm-odoo-odoo-web-1 odoo \
   --stop-after-init
 
 # Poi riavvia normalmente
-docker-compose restart odoo-web
+docker compose restart odoo-web
 ```
 
 ### Debugging
@@ -461,10 +461,10 @@ import ipdb; ipdb.set_trace()
 
 ```bash
 # Segui i log in tempo reale
-docker-compose logs -f odoo-web
+docker compose logs -f odoo-web
 
 # Solo errori
-docker-compose logs -f odoo-web | grep ERROR
+docker compose logs -f odoo-web | grep ERROR
 ```
 
 ## 📚 Risorse Utili
@@ -553,8 +553,8 @@ class MyWizard(models.TransientModel):
 # Settings > Apps > Update Apps List
 
 # O riavvia con --dev=all
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ### Errori di import

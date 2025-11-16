@@ -151,7 +151,7 @@ Alcuni moduli possono essere installati direttamente dall'interfaccia Odoo:
 
 ```bash
 # Dalla directory principale vm-odoo/
-docker-compose restart odoo-web odoo-cron
+docker compose restart odoo-web odoo-cron
 ```
 
 ### 2. Aggiorna la Lista Moduli
@@ -178,7 +178,7 @@ docker exec -it vm-odoo-odoo-web-1 odoo \
   --stop-after-init
 
 # Poi riavvia
-docker-compose restart odoo-web
+docker compose restart odoo-web
 ```
 
 ---
@@ -254,7 +254,7 @@ ls -la addons/module_name
 cat addons/module_name/__manifest__.py
 
 # 3. Riavvia e aggiorna lista
-docker-compose restart odoo-web
+docker compose restart odoo-web
 # Poi: Settings > Apps > Update Apps List
 ```
 
@@ -262,7 +262,7 @@ docker-compose restart odoo-web
 
 ```bash
 # Guarda i log per dettagli
-docker-compose logs -f odoo-web
+docker compose logs -f odoo-web
 
 # Errori comuni:
 # - Dipendenze mancanti: installa prima i moduli da cui dipende
@@ -300,7 +300,7 @@ rm -rf oca-temp
 
 # Riavvia
 cd ..
-docker-compose restart odoo-web
+docker compose restart odoo-web
 
 # Poi installa da UI
 ```
@@ -330,7 +330,7 @@ cat > __manifest__.py << 'EOF'
 EOF
 
 cd ../..
-docker-compose restart odoo-web
+docker compose restart odoo-web
 ```
 
 ---
