@@ -61,7 +61,7 @@ services:
       --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.odoo.rule=${TRAEFIK_HOSTS}"
+      - "traefik.http.routers.odoo.rule=Host(`victorianmonkey.org`) || Host(`www.victorianmonkey.org`) || Host(`odoo.victorianmonkey.org`)"
       - "traefik.http.routers.odoo.entrypoints=websecure"
       - "traefik.http.routers.odoo.tls.certresolver=le"
       - "traefik.http.services.odoo.loadbalancer.server.port=8069"

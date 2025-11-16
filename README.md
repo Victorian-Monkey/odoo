@@ -65,11 +65,10 @@ PASSWORD=your_secure_password
 # Master password Odoo
 ADMIN_PASSWD=your_master_password_here
 
-# Domini
-TRAEFIK_HOSTS=Host(`victorianmonkey.org`) || Host(`www.victorianmonkey.org`)
-
 # MinIO
 MINIO_ROOT_PASSWORD=your_minio_password
+
+# Note: I domini Traefik sono configurati direttamente in docker-compose.yml
 ```
 
 **Nel file `config/odoo.conf`:**
