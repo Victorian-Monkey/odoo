@@ -39,9 +39,6 @@ http_interface = 0.0.0.0
 http_port = 8069
 proxy_mode = True
 
-# Longpolling per notifiche real-time
-longpolling_port = 8072
-
 # Workers (0 = threaded mode, >0 = multiprocess)
 # Consigliato: (CPU cores * 2) + 1
 workers = 6
@@ -154,8 +151,7 @@ data_dir = /var/lib/odoo
 # Server wide modules (base e web sono di default)
 server_wide_modules = base,web
 
-# Workers per servizi enterprise (se necessario)
-# gevent_port = 8072
+# Note: In Odoo 19.0, longpolling is handled automatically on the same port
 
 
 # =============================================================================

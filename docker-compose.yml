@@ -56,7 +56,6 @@ services:
       --max-cron-threads=2
       --http-interface=0.0.0.0
       --proxy-mode
-      --longpolling-port=8072
       --limit-time-cpu=1200
       --limit-time-real=2400
       --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
@@ -66,10 +65,7 @@ services:
       - "traefik.http.routers.odoo.entrypoints=websecure"
       - "traefik.http.routers.odoo.tls.certresolver=le"
       - "traefik.http.services.odoo.loadbalancer.server.port=8069"
-      - "traefik.http.routers.odoo-longpolling.rule=${TRAEFIK_HOSTS} && PathPrefix(`/longpolling`)"
-      - "traefik.http.routers.odoo-longpolling.entrypoints=websecure"
-      - "traefik.http.routers.odoo-longpolling.tls.certresolver=le"
-      - "traefik.http.services.odoo-longpolling.loadbalancer.server.port=8072"
+
     ports:
       - "8069:8069"
     restart: unless-stopped
