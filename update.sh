@@ -48,6 +48,15 @@ check_git() {
     fi
 }
 
+# Check Docker Compose v2
+check_docker_compose() {
+    if ! docker compose version &> /dev/null; then
+        print_error "Docker Compose v2 is not installed!"
+        print_info "Install Docker Compose v2: https://docs.docker.com/compose/install/"
+        exit 1
+    fi
+}
+
 # Check if we're in a git repository
 check_git_repo() {
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -210,13 +219,22 @@ restart_services() {
     print_header "Restarting Docker Services"
 
     print_info "Stopping services..."
-    docker compose down
-    print_success "Services stopped"
+    if docker compose down; then
+        print_success "Services stopped"
+    else
+        print_error "Failed to stop services!"
+        exit 1
+    fi
 
     echo ""
     print_info "Starting services..."
-    docker compose up -d
-    print_success "Services started"
+    if docker compose up -d; then
+        print_success "Services started"
+    else
+        print_error "Failed to start services!"
+        print_info "Check logs with: docker compose logs -f"
+        exit 1
+    fi
 
     echo ""
     print_info "Waiting for services to be ready..."
@@ -274,7 +292,49 @@ show_summary() {
     echo "  • Prometheus: ${CYAN}https://prometheus.victorianmonkey.org${NC}"
     echo ""
 
+    print_info "Useful commands:"
+    echo "  • View logs: ${GREEN}docker compose logs -f odoo-web${NC}"
+    echo "  • Check status: ${GREEN}docker compose ps${NC}"
+    echo "  • Stop all: ${GREEN}docker compose down${NC}"
+    echo ""
+
     print_success "Update completed successfully!"
+}
+
+# Update Odoo modules
+update_odoo_modules() {
+    print_header "Update Odoo Modules (Optional)"
+
+    echo ""
+    read -p "Do you want to update Odoo modules in the database? (y/N): " -n 1 -r
+    echo
+
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo ""
+        read -p "Enter database name (or press Enter to skip): " DB_NAME
+
+        if [ -n "$DB_NAME" ]; then
+            print_info "Updating all modules in database: $DB_NAME"
+            print_warning "This may take several minutes..."
+
+            if docker compose exec -T odoo-web odoo -u all -d "$DB_NAME" --stop-after-init; then
+                print_success "Modules updated successfully!"
+
+                print_info "Restarting Odoo..."
+                docker compose restart odoo-web odoo-cron
+
+                sleep 3
+                print_success "Odoo restarted"
+            else
+                print_error "Failed to update modules!"
+                print_info "Check logs with: docker compose logs -f odoo-web"
+            fi
+        else
+            print_info "Skipping module update"
+        fi
+    else
+        print_info "Skipping module update"
+    fi
 }
 
 # Main execution
@@ -295,6 +355,7 @@ EOF
     # Pre-flight checks
     check_git
     check_git_repo
+    check_docker_compose
 
     # Show current status
     show_status
@@ -332,6 +393,9 @@ EOF
 
     # Apply stashed changes
     apply_stash
+
+    # Update Odoo modules (optional)
+    update_odoo_modules
 
     # Summary
     show_summary
