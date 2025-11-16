@@ -43,6 +43,7 @@ services:
 
   odoo-web:
     image: odoo:19.0
+    user: "101:101"
     depends_on:
       - redis
     env_file:
@@ -72,6 +73,7 @@ services:
 
   odoo-cron:
     image: odoo:19.0
+    user: "101:101"
     depends_on:
       - redis
     env_file:
@@ -132,6 +134,14 @@ services:
       - WEBHOOK_URL=https://${N8N_HOST:-n8n.victorianmonkey.org}/
       - N8N_METRICS=true
       - N8N_DIAGNOSTICS_ENABLED=true
+      # Database configuration (default: SQLite in /home/node/.n8n)
+      # Per usare PostgreSQL, decommentare e configurare nel .env:
+      # - DB_TYPE=postgresdb
+      # - DB_POSTGRESDB_HOST=${N8N_DB_HOST}
+      # - DB_POSTGRESDB_PORT=${N8N_DB_PORT:-5432}
+      # - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME}
+      # - DB_POSTGRESDB_USER=${N8N_DB_USER}
+      # - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD}
     volumes:
       - ./data/n8n:/home/node/.n8n
     labels:
