@@ -88,6 +88,8 @@ create_directories() {
         "data/prometheus"
         "data/grafana"
         "data/n8n"
+        "data/ollama"
+        "data/ollama-webui"
         "traefik"
         "monitoring"
         "addons"

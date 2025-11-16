@@ -225,6 +225,8 @@ fix_permissions() {
     mkdir -p data/redis
     mkdir -p data/minio
     mkdir -p data/filestore
+    mkdir -p data/ollama
+    mkdir -p data/ollama-webui
 
     # Fix Odoo permissions (runs as odoo:odoo - 101:101)
     if [ -d "data/filestore" ]; then
@@ -341,6 +343,7 @@ show_summary() {
     echo "  • Grafana: ${CYAN}https://grafana.victorianmonkey.org${NC}"
     echo "  • Prometheus: ${CYAN}https://prometheus.victorianmonkey.org${NC}"
     echo "  • n8n: ${CYAN}https://n8n.victorianmonkey.org${NC}"
+    echo "  • AI (Ollama): ${CYAN}https://ai.victorianmonkey.org${NC}"
     echo ""
 
     print_info "Useful commands:"

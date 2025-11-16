@@ -9,6 +9,8 @@ Stack di produzione completo per **Odoo 19.0 Community Edition** con Traefik, Po
 - **PostgreSQL** - Database esterno (non incluso nel compose)
 - **Redis 7** - Cache e sessioni
 - **MinIO** - Object storage S3-compatible
+- **n8n** - Workflow automation platform
+- **Ollama + Open WebUI** - AI/LLM locale con interfaccia web (autenticazione richiesta)
 - **Prometheus** - Monitoring e metriche
 - **Grafana** - Dashboard e visualizzazione
 
@@ -89,6 +91,8 @@ victorianmonkey.org              A    YOUR_VPS_IP
 www.victorianmonkey.org          A    YOUR_VPS_IP
 grafana.victorianmonkey.org      A    YOUR_VPS_IP
 prometheus.victorianmonkey.org   A    YOUR_VPS_IP
+n8n.victorianmonkey.org          A    YOUR_VPS_IP
+ai.victorianmonkey.org           A    YOUR_VPS_IP
 ```
 
 ### 5. Firewall
