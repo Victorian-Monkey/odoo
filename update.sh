@@ -230,7 +230,7 @@ fix_permissions() {
     if [ -d "data/prometheus" ]; then
         print_info "Setting permissions for Prometheus data..."
         sudo chown -R 65534:65534 data/prometheus
-        chmod -R 755 data/prometheus
+        sudo chmod -R 755 data/prometheus
         print_success "Prometheus permissions fixed"
     fi
 
@@ -238,7 +238,7 @@ fix_permissions() {
     if [ -d "data/grafana" ]; then
         print_info "Setting permissions for Grafana data..."
         sudo chown -R 472:472 data/grafana
-        chmod -R 755 data/grafana
+        sudo chmod -R 755 data/grafana
         print_success "Grafana permissions fixed"
     fi
 
@@ -246,7 +246,7 @@ fix_permissions() {
     if [ -d "data/n8n" ]; then
         print_info "Setting permissions for n8n data..."
         sudo chown -R 1000:1000 data/n8n
-        chmod -R 755 data/n8n
+        sudo chmod -R 755 data/n8n
         print_success "n8n permissions fixed"
     fi
 
