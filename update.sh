@@ -226,6 +226,14 @@ fix_permissions() {
     mkdir -p data/minio
     mkdir -p data/filestore
 
+    # Fix Odoo permissions (runs as odoo:odoo - 101:101)
+    if [ -d "data/filestore" ]; then
+        print_info "Setting permissions for Odoo filestore..."
+        sudo chown -R 101:101 data/filestore
+        sudo chmod -R 755 data/filestore
+        print_success "Odoo filestore permissions fixed"
+    fi
+
     # Fix Prometheus permissions (runs as nobody:nobody - 65534:65534)
     if [ -d "data/prometheus" ]; then
         print_info "Setting permissions for Prometheus data..."

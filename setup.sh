@@ -106,24 +106,31 @@ create_directories() {
     # Fix permissions for service-specific directories
     print_info "Setting correct permissions for data directories..."
 
+    # Odoo (runs as odoo:odoo - 101:101)
+    if [ -d "data/filestore" ]; then
+        sudo chown -R 101:101 data/filestore
+        sudo chmod -R 755 data/filestore
+        print_success "Odoo filestore permissions set"
+    fi
+
     # Prometheus (runs as nobody:nobody - 65534:65534)
     if [ -d "data/prometheus" ]; then
         sudo chown -R 65534:65534 data/prometheus
-        chmod -R 755 data/prometheus
+        sudo chmod -R 755 data/prometheus
         print_success "Prometheus permissions set"
     fi
 
     # Grafana (runs as grafana:grafana - 472:472)
     if [ -d "data/grafana" ]; then
         sudo chown -R 472:472 data/grafana
-        chmod -R 755 data/grafana
+        sudo chmod -R 755 data/grafana
         print_success "Grafana permissions set"
     fi
 
     # n8n (runs as node:node - 1000:1000)
     if [ -d "data/n8n" ]; then
         sudo chown -R 1000:1000 data/n8n
-        chmod -R 755 data/n8n
+        sudo chmod -R 755 data/n8n
         print_success "n8n permissions set"
     fi
 }
