@@ -155,7 +155,7 @@ services:
     restart: unless-stopped
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.12.11
     user: "1000:1000"
     volumes:
       - ./data/ollama:/root/.ollama
