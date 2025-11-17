@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Odoo Community Production Setup Script
+# Victorian Monkey Stack Setup Script
 # Victorian Monkey - victorianmonkey.org
 # =============================================================================
 
@@ -81,10 +81,7 @@ create_directories() {
     print_header "Creating Directory Structure"
 
     directories=(
-        "config"
-        "data/filestore"
         "data/redis"
-        "data/minio"
         "data/prometheus"
         "data/grafana"
         "data/n8n"
@@ -92,7 +89,6 @@ create_directories() {
         "data/ollama-webui"
         "traefik"
         "monitoring"
-        "addons"
         "backups"
     )
 
@@ -107,13 +103,6 @@ create_directories() {
 
     # Fix permissions for service-specific directories
     print_info "Setting correct permissions for data directories..."
-
-    # Odoo (runs as odoo:odoo - 101:101)
-    if [ -d "data/filestore" ]; then
-        sudo chown -R 101:101 data/filestore
-        sudo chmod -R 755 data/filestore
-        print_success "Odoo filestore permissions set"
-    fi
 
     # Prometheus (runs as nobody:nobody - 65534:65534)
     if [ -d "data/prometheus" ]; then

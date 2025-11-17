@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Odoo Community Edition - Update Script
+# Victorian Monkey Stack - Update Script
 # Victorian Monkey - victorianmonkey.org
 # =============================================================================
 # Questo script aggiorna il progetto da Git e riavvia i servizi Docker
@@ -223,18 +223,8 @@ fix_permissions() {
     mkdir -p data/grafana
     mkdir -p data/n8n
     mkdir -p data/redis
-    mkdir -p data/minio
-    mkdir -p data/filestore
     mkdir -p data/ollama
     mkdir -p data/ollama-webui
-
-    # Fix Odoo permissions (runs as odoo:odoo - 101:101)
-    if [ -d "data/filestore" ]; then
-        print_info "Setting permissions for Odoo filestore..."
-        sudo chown -R 101:101 data/filestore
-        sudo chmod -R 755 data/filestore
-        print_success "Odoo filestore permissions fixed"
-    fi
 
     # Fix Prometheus permissions (runs as nobody:nobody - 65534:65534)
     if [ -d "data/prometheus" ]; then
@@ -355,15 +345,14 @@ show_summary() {
     echo ""
 
     print_info "Access your services:"
-    echo "  • Odoo: ${CYAN}https://victorianmonkey.org${NC}"
-    echo "  • Grafana: ${CYAN}https://grafana.victorianmonkey.org${NC}"
-    echo "  • Prometheus: ${CYAN}https://prometheus.victorianmonkey.org${NC}"
     echo "  • n8n: ${CYAN}https://n8n.victorianmonkey.org${NC}"
     echo "  • AI (Ollama): ${CYAN}https://ai.victorianmonkey.org${NC}"
+    echo "  • Grafana: ${CYAN}https://grafana.victorianmonkey.org${NC}"
+    echo "  • Prometheus: ${CYAN}https://prometheus.victorianmonkey.org${NC}"
     echo ""
 
     print_info "Useful commands:"
-    echo "  • View logs: ${GREEN}docker compose logs -f odoo-web${NC}"
+    echo "  • View logs: ${GREEN}docker compose logs -f n8n${NC}"
     echo "  • Check status: ${GREEN}docker compose ps${NC}"
     echo "  • Stop all: ${GREEN}docker compose down${NC}"
     echo ""
@@ -371,41 +360,7 @@ show_summary() {
     print_success "Update completed successfully!"
 }
 
-# Update Odoo modules
-update_odoo_modules() {
-    print_header "Update Odoo Modules (Optional)"
 
-    echo ""
-    read -p "Do you want to update Odoo modules in the database? (y/N): " -n 1 -r
-    echo
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo ""
-        read -p "Enter database name (or press Enter to skip): " DB_NAME
-
-        if [ -n "$DB_NAME" ]; then
-            print_info "Updating all modules in database: $DB_NAME"
-            print_warning "This may take several minutes..."
-
-            if docker compose exec -T odoo-web odoo -u all -d "$DB_NAME" --stop-after-init; then
-                print_success "Modules updated successfully!"
-
-                print_info "Restarting Odoo..."
-                docker compose restart odoo-web odoo-cron
-
-                sleep 3
-                print_success "Odoo restarted"
-            else
-                print_error "Failed to update modules!"
-                print_info "Check logs with: docker compose logs -f odoo-web"
-            fi
-        else
-            print_info "Skipping module update"
-        fi
-    else
-        print_info "Skipping module update"
-    fi
-}
 
 # Main execution
 main() {
@@ -418,7 +373,7 @@ main() {
   | |_| | |_) | (_| | (_| | ||  __/
    \___/| .__/ \__,_|\__,_|\__\___|
         |_|
-  Victorian Monkey - Odoo Update
+  Victorian Monkey - Stack Update
 EOF
     echo -e "${NC}"
 
@@ -463,9 +418,6 @@ EOF
 
     # Apply stashed changes
     apply_stash
-
-    # Update Odoo modules (optional)
-    update_odoo_modules
 
     # Summary
     show_summary

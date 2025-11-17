@@ -29,68 +29,7 @@ services:
       - ./data/redis:/data
     restart: unless-stopped
 
-  minio:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
-    command: server /data --console-address ":9001"
-    env_file:
-      - .env
-    volumes:
-      - ./data/minio:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    restart: unless-stopped
-
-  odoo-web:
-    image: odoo:19.0
-    user: "101:101"
-    depends_on:
-      - redis
-    env_file:
-      - .env
-    volumes:
-      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
-      - ./addons:/mnt/custom-addons:ro
-      - ./data/filestore:/var/lib/odoo
-    command: >
-      --workers=6
-      --max-cron-threads=2
-      --http-interface=0.0.0.0
-      --proxy-mode
-      --limit-time-cpu=1200
-      --limit-time-real=2400
-      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.odoo.rule=Host(`victorianmonkey.org`) || Host(`www.victorianmonkey.org`) || Host(`odoo.victorianmonkey.org`)"
-      - "traefik.http.routers.odoo.entrypoints=websecure"
-      - "traefik.http.routers.odoo.tls.certresolver=le"
-      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
-
-    ports:
-      - "8069:8069"
-    restart: unless-stopped
-
-  odoo-cron:
-    image: odoo:19.0
-    user: "101:101"
-    depends_on:
-      - redis
-    env_file:
-      - .env
-    volumes:
-      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
-      - ./addons:/mnt/custom-addons:ro
-      - ./data/filestore:/var/lib/odoo
-    command: >
-      --workers=0
-      --max-cron-threads=2
-      --http-interface=0.0.0.0
-      --proxy-mode
-      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/custom-addons
-    restart: unless-stopped
-
-  # Optional monitoring stack
+  # Monitoring stack
   prometheus:
     image: prom/prometheus:latest
     user: "65534:65534"

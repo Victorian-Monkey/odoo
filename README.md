@@ -1,27 +1,23 @@
-# 🐒 Victorian Monkey - Odoo Community Edition
+# 🐒 Victorian Monkey - Production Stack
 
-Stack di produzione completo per **Odoo 19.0 Community Edition** con Traefik, PostgreSQL esterno, Redis, MinIO e monitoring.
+Stack di produzione completo con **n8n**, **Ollama AI**, Traefik, Redis, MinIO e monitoring.
 
 ## 📋 Stack Completo
 
-- **Odoo 19.0 Community** - ERP/CRM open source
-- **Traefik v3.1** - Reverse proxy con SSL automatico (Let's Encrypt)
-- **PostgreSQL** - Database esterno (non incluso nel compose)
-- **Redis 7** - Cache e sessioni
-- **MinIO** - Object storage S3-compatible
-- **n8n** - Workflow automation platform
+- **n8n** - Workflow automation platform (con metriche Prometheus)
 - **Ollama + Open WebUI** - AI/LLM locale con interfaccia web (autenticazione richiesta)
+- **Traefik v3.6** - Reverse proxy con SSL automatico (Let's Encrypt)
+- **Redis 7** - Cache per n8n
 - **Prometheus** - Monitoring e metriche
-- **Grafana** - Dashboard e visualizzazione
+- **Grafana** - Dashboard e visualizzazione (con dashboard n8n preconfigurata)
 
 ## 🚀 Quick Start
 
 ### 1. Prerequisiti
 
 - VPS con Docker e Docker Compose installati
-- Database PostgreSQL esterno accessibile
 - Domini DNS configurati (vedi sotto)
-- Minimo 2GB RAM, 2 CPU cores raccomandati
+- Minimo 4GB RAM, 2 CPU cores raccomandati (8GB per Ollama con modelli grandi)
 
 ### 2. Setup Iniziale
 
@@ -49,37 +45,26 @@ Lo script di setup verificherà:
 # Copia e modifica .env
 cp .env.example .env
 nano .env
-
-# Copia e modifica odoo.conf
-cp conf/odoo.conf.example config/odoo.conf
-nano config/odoo.conf
 ```
 
 #### Variabili CRITICHE da configurare:
 
 **Nel file `.env`:**
 ```env
-# Database esterno
-HOST=your-postgres-host.com
-USER=odoo
-PASSWORD=your_secure_password
+# Traefik SSL
+ACME_EMAIL=your-email@example.com
 
-# Master password Odoo
-ADMIN_PASSWD=your_master_password_here
+# n8n (opzionale - usa PostgreSQL)
+N8N_HOST=n8n.victorianmonkey.org
+# N8N_DB_HOST=your-postgres-host.com
+# N8N_DB_NAME=n8n
+# N8N_DB_USER=n8n
+# N8N_DB_PASSWORD=your_secure_password
 
-# Domini
-TRAEFIK_HOSTS=Host(`victorianmonkey.org`) || Host(`www.victorianmonkey.org`)
-
-# MinIO
-MINIO_ROOT_PASSWORD=your_minio_password
-```
-
-**Nel file `config/odoo.conf`:**
-```ini
-admin_passwd = your_master_password_here
-db_host = your-postgres-host.com
-db_user = odoo
-db_password = your_secure_password
+# Ollama WebUI
+OLLAMA_WEBUI_SECRET_KEY=generate-with-openssl-rand-hex-32
+# Generate with: htpasswd -nb admin yourpassword
+OLLAMA_BASIC_AUTH=admin:$$apr1$$xyz$$abc
 ```
 
 ### 4. DNS Configuration
@@ -87,12 +72,10 @@ db_password = your_secure_password
 Configura i seguenti record A presso il tuo provider DNS:
 
 ```
-victorianmonkey.org              A    YOUR_VPS_IP
-www.victorianmonkey.org          A    YOUR_VPS_IP
-grafana.victorianmonkey.org      A    YOUR_VPS_IP
-prometheus.victorianmonkey.org   A    YOUR_VPS_IP
 n8n.victorianmonkey.org          A    YOUR_VPS_IP
 ai.victorianmonkey.org           A    YOUR_VPS_IP
+grafana.victorianmonkey.org      A    YOUR_VPS_IP
+prometheus.victorianmonkey.org   A    YOUR_VPS_IP
 ```
 
 ### 5. Firewall
@@ -112,7 +95,7 @@ sudo ufw enable
 docker compose up -d
 
 # Controlla i log
-docker compose logs -f odoo-web
+docker compose logs -f n8n
 
 # Verifica lo stato
 docker compose ps
@@ -120,9 +103,22 @@ docker compose ps
 
 ### 7. Primo Accesso
 
-1. Vai su https://victorianmonkey.org
-2. Crea il primo database (usa il master password configurato)
-3. Installa i moduli necessari
+**n8n:** `https://n8n.victorianmonkey.org`
+- Crea il tuo account admin al primo accesso
+- Configura workflows e automazioni
+
+**Ollama AI:** `https://ai.victorianmonkey.org`
+- Login con credenziali Basic Auth configurate
+- Poi crea account nell'interfaccia WebUI
+- Scarica modelli: Settings > Models > Pull a model (es: `llama2`, `mistral`)
+
+**Grafana:** `https://grafana.victorianmonkey.org`
+- Username: `admin`
+- Password: configurata in `.env` (`GF_SECURITY_ADMIN_PASSWORD`)
+- Importa dashboard n8n: `monitoring/n8n-dashboard.json`
+
+**Prometheus:** `https://prometheus.victorianmonkey.org`
+- Metriche n8n disponibili su `/metrics`
 4. Configura il tuo sistema!
 
 ## 📁 Struttura Progetto
@@ -133,28 +129,22 @@ vm-odoo/
 ├── .env.example                # Template variabili d'ambiente
 ├── .env                        # Tue configurazioni (NON committare!)
 ├── setup.sh                    # Script setup automatico
+├── update.sh                   # Script update automatico
 ├── README.md                   # Questo file
 │
-├── addons/                     # I tuoi moduli custom Odoo
-│   └── README.md              # Guida sviluppo addons
-│
-├── config/
-│   └── odoo.conf              # Configurazione Odoo
-│
-├── conf/
-│   └── odoo.conf.example      # Template configurazione
-│
 ├── traefik/
-│   ├── dynamic.yml            # Configurazione Traefik dinamica
-│   └── acme.json              # Certificati SSL (auto-generati)
+│   ├── dynamic.yml            # Configurazione dinamica Traefik
+│   └── acme.json              # Certificati SSL (auto-generato)
 │
 ├── monitoring/
-│   └── prometheus.yml         # Configurazione Prometheus
+│   ├── prometheus.yml         # Configurazione Prometheus
+│   └── n8n-dashboard.json     # Dashboard Grafana per n8n
 │
 └── data/                      # Dati persistenti (volumi Docker)
-    ├── filestore/             # File Odoo
+    ├── n8n/                   # Database SQLite e workflows n8n
+    ├── ollama/                # Modelli AI Ollama
+    ├── ollama-webui/          # Config Open WebUI
     ├── redis/                 # Dati Redis
-    ├── minio/                 # Object storage
     ├── prometheus/            # Metriche
     └── grafana/               # Dashboard
 ```
@@ -217,53 +207,62 @@ docker compose logs -f
 docker compose ps
 ```
 
-### Odoo Commands
+### n8n Commands
 
 ```bash
-# Accedi al container Odoo
-docker exec -it vm-odoo-odoo-web-1 bash
+# Accedi al container n8n
+docker exec -it vm-odoo-n8n-1 sh
 
-# Update modulo
-docker exec -it vm-odoo-odoo-web-1 odoo \
-  -u module_name \
-  -d your_database \
-  --stop-after-init
+# Export workflows
+docker exec vm-odoo-n8n-1 n8n export:workflow --all --output=/data/backup/
 
-# Installa modulo
-docker exec -it vm-odoo-odoo-web-1 odoo \
-  -i module_name \
-  -d your_database \
-  --stop-after-init
+# Import workflows
+docker exec vm-odoo-n8n-1 n8n import:workflow --input=/data/backup/workflows.json
+```
 
-# Lista database
-docker exec -it vm-odoo-odoo-web-1 odoo \
-  --list-databases
+### Ollama Commands
 
-# Shell Odoo (debugging)
-docker exec -it vm-odoo-odoo-web-1 odoo shell -d your_database
+```bash
+# Lista modelli installati
+docker exec vm-odoo-ollama-1 ollama list
+
+# Scarica un modello
+docker exec vm-odoo-ollama-1 ollama pull llama2
+
+# Rimuovi un modello
+docker exec vm-odoo-ollama-1 ollama rm llama2
+
+# Test modello da CLI
+docker exec -it vm-odoo-ollama-1 ollama run llama2 "Hello, how are you?"
 ```
 
 ### Backup
 
 ```bash
-# Backup database (dal tuo PostgreSQL server)
-pg_dump -h your-postgres-host -U odoo -F c your_database > backup.dump
+# Backup n8n (SQLite database)
+tar -czf n8n_backup_$(date +%Y%m%d).tar.gz data/n8n/
 
-# Backup filestore
-tar -czf filestore_backup.tar.gz data/filestore/
+# Backup Ollama models
+tar -czf ollama_backup_$(date +%Y%m%d).tar.gz data/ollama/
+
+# Backup Grafana dashboards
+tar -czf grafana_backup_$(date +%Y%m%d).tar.gz data/grafana/
 
 # Backup completo
-./backup.sh  # (da creare)
+tar -czf vm_stack_backup_$(date +%Y%m%d).tar.gz data/ .env
 ```
 
 ### Restore
 
 ```bash
-# Restore database
-pg_restore -h your-postgres-host -U odoo -d new_database backup.dump
+# Restore n8n
+tar -xzf n8n_backup_20250116.tar.gz -C ./
 
-# Restore filestore
-tar -xzf filestore_backup.tar.gz -C data/
+# Restore Ollama
+tar -xzf ollama_backup_20250116.tar.gz -C ./
+
+# Riavvia servizi dopo restore
+docker compose restart n8n ollama
 ```
 
 ### Update da Git
@@ -296,8 +295,11 @@ tar -xzf filestore_backup.tar.gz -C data/
 ### Log Monitoring
 
 ```bash
-# Errori Odoo
-docker compose logs odoo-web | grep ERROR
+# Errori n8n
+docker compose logs n8n | grep ERROR
+
+# Errori Ollama
+docker compose logs ollama ollama-webui | grep -i error
 
 # Traffico Traefik
 docker compose logs traefik
@@ -322,16 +324,11 @@ cd my_module
 touch __init__.py __manifest__.py
 mkdir models views security
 
-# Sviluppa il tuo modulo...
-
-# Installa in Odoo
-docker compose restart odoo-web
-# Poi dall'interfaccia Odoo: Apps > Update Apps List > Cerca "my_module"
+# Sviluppa il tuo workflow...
+# n8n supporta hot-reload automatico
 ```
 
-## 🔧 Troubleshooting
-
-### Odoo non si avvia
+### n8n non si avvia
 
 ```bash
 # Controlla i log
