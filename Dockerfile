@@ -9,12 +9,15 @@ USER root
 RUN apt-get update && apt-get install -y \
     python3-pil \
     python3-pip \
+    gcc \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 USER odoo
 
 # Copia requirements personalizzati e installa dipendenze Python
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install --upgrade pip setuptools wheel && \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # Il resto della configurazione è gestita tramite docker-compose.yml
 
