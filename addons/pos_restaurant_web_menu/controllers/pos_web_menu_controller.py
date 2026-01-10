@@ -82,9 +82,14 @@ class PosWebMenuController(http.Controller):
             if not pos_config.exists() or not table.exists():
                 return {'success': False, 'error': 'Configurazione POS o tavolo non trovato'}
             
-            # Verifica se esiste già un ordine per questo tavolo
+            # Verifica se esiste già un ordine per questo tavolo nella sessione corrente
+            session = pos_config.current_session_id
+            if not session or session.state != 'opened':
+                return {'success': False, 'error': 'Nessuna sessione POS attiva. Apri una sessione POS prima di creare ordini dal web.'}
+            
             existing_order = request.env['pos.order'].sudo().search([
                 ('table_id', '=', table_id),
+                ('session_id', '=', session.id),
                 ('state', 'in', ['draft', 'paid']),
             ], limit=1, order='create_date desc')
             

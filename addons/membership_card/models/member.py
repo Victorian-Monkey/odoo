@@ -13,8 +13,7 @@ class Member(models.Model):
     _order = 'name'
 
     # Informazioni base
-    name = fields.Char(string='Nome Completo', required=True, tracking=True,
-                      compute='_compute_display_name', store=True, readonly=False)
+    name = fields.Char(string='Nome Completo', required=True, tracking=True)
     first_name = fields.Char(string='Nome', tracking=True)
     last_name = fields.Char(string='Cognome', tracking=True)
     
@@ -160,7 +159,7 @@ class Member(models.Model):
     age = fields.Integer(string='Età', compute='_compute_age')
     
     # Campi computed per nome di elezione
-    @api.depends('first_name', 'last_name', 'chosen_first_name', 'chosen_last_name', 'use_chosen_name')
+    @api.depends('first_name', 'last_name', 'chosen_first_name', 'chosen_last_name', 'use_chosen_name', 'name')
     def _compute_display_name(self):
         for record in self:
             if record.use_chosen_name and record.chosen_first_name:
@@ -172,16 +171,11 @@ class Member(models.Model):
                     # Se non c'è cognome di elezione, usa quello legale
                     chosen_name += f" {record.last_name}" if record.last_name else ""
                 record.display_name = chosen_name.strip()
-                # Aggiorna anche il campo name per retrocompatibilità
-                if not record.name or record.name == (f"{record.first_name} {record.last_name}".strip() if record.first_name or record.last_name else ""):
-                    record.name = chosen_name.strip()
             else:
-                # Usa il nome legale
+                # Usa il nome legale o il campo name se già compilato
                 if record.first_name or record.last_name:
                     legal_name = f"{record.first_name or ''} {record.last_name or ''}".strip()
                     record.display_name = legal_name
-                    if not record.name:
-                        record.name = legal_name
                 else:
                     record.display_name = record.name or ""
     
@@ -225,7 +219,11 @@ class Member(models.Model):
                 if months:
                     year = start.year + (start.month + months - 1) // 12
                     month = ((start.month + months - 1) % 12) + 1
-                    day = min(start.day, [31, 29 if year % 4 == 0 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])
+                    # Calcolo giorni del mese con controllo anno bisestile corretto
+                    # Anno bisestile: divisibile per 4, ma non per 100, oppure divisibile per 400
+                    is_leap_year = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+                    days_in_month = [31, 29 if is_leap_year else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]
+                    day = min(start.day, days_in_month)
                     record.membership_end_date = fields.Date.to_string(datetime(year, month, day))
             else:
                 record.membership_end_date = False
@@ -297,9 +295,19 @@ class Member(models.Model):
         if vals.get('marketing_consent') and not vals.get('marketing_consent_date'):
             vals['marketing_consent_date'] = fields.Datetime.now()
         
-        # Genera nome completo da nome e cognome se non specificato
-        if not vals.get('name') and (vals.get('first_name') or vals.get('last_name')):
-            vals['name'] = f"{vals.get('first_name', '')} {vals.get('last_name', '')}".strip()
+        # Gestisce il nome: se non specificato, genera da nome/cognome o nome di elezione
+        if not vals.get('name'):
+            if vals.get('use_chosen_name') and vals.get('chosen_first_name'):
+                # Usa nome di elezione
+                chosen_name = vals.get('chosen_first_name', '')
+                if vals.get('chosen_last_name'):
+                    chosen_name += f" {vals.get('chosen_last_name')}"
+                elif vals.get('last_name'):
+                    chosen_name += f" {vals.get('last_name')}"
+                vals['name'] = chosen_name.strip()
+            elif vals.get('first_name') or vals.get('last_name'):
+                # Usa nome legale
+                vals['name'] = f"{vals.get('first_name', '')} {vals.get('last_name', '')}".strip()
         
         return super(Member, self).create(vals)
     
@@ -312,9 +320,12 @@ class Member(models.Model):
         if 'marketing_consent' in vals and vals['marketing_consent'] and not vals.get('marketing_consent_date'):
             vals['marketing_consent_date'] = fields.Datetime.now()
         
-        # Aggiorna nome in base a nome di elezione o legale
-        if 'use_chosen_name' in vals or 'chosen_first_name' in vals or 'chosen_last_name' in vals or 'first_name' in vals or 'last_name' in vals:
+        # Aggiorna nome solo se non è stato esplicitamente modificato dall'utente
+        # e se sono stati modificati i campi che compongono il nome
+        if 'name' not in vals and ('use_chosen_name' in vals or 'chosen_first_name' in vals or 'chosen_last_name' in vals or 'first_name' in vals or 'last_name' in vals):
+            # Processa ogni record individualmente per gestire correttamente i batch
             for record in self:
+                record_vals = {}
                 use_chosen = vals.get('use_chosen_name', record.use_chosen_name)
                 if use_chosen:
                     chosen_first = vals.get('chosen_first_name', record.chosen_first_name)
@@ -322,19 +333,20 @@ class Member(models.Model):
                     last_name = vals.get('last_name', record.last_name)
                     if chosen_first:
                         if chosen_last:
-                            name = f"{chosen_first} {chosen_last}".strip()
+                            record_vals['name'] = f"{chosen_first} {chosen_last}".strip()
                         elif last_name:
-                            name = f"{chosen_first} {last_name}".strip()
+                            record_vals['name'] = f"{chosen_first} {last_name}".strip()
                         else:
-                            name = chosen_first
-                        if 'name' not in vals:
-                            vals['name'] = name
+                            record_vals['name'] = chosen_first
                 else:
                     first = vals.get('first_name', record.first_name)
                     last = vals.get('last_name', record.last_name)
                     if first or last:
-                        if 'name' not in vals:
-                            vals['name'] = f"{first} {last}".strip()
+                        record_vals['name'] = f"{first} {last}".strip()
+                
+                # Applica le modifiche al singolo record se necessario
+                if record_vals:
+                    record.write(record_vals)
         
         return super(Member, self).write(vals)
     

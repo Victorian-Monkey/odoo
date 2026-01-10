@@ -9,12 +9,20 @@ from datetime import datetime
 class MembershipAPI(http.Controller):
     """API REST per la gestione delle membership card"""
 
-    @http.route('/api/membership/members', auth='public', methods=['GET'], csrf=False, cors='*')
+    @http.route('/api/membership/members', auth='user', methods=['GET'], csrf=False, cors='*')
     def get_members(self, **kwargs):
-        """Ottiene la lista dei membri"""
+        """Ottiene la lista dei membri (richiede autenticazione)"""
         try:
-            # Verifica autenticazione (puoi implementare token-based auth)
-            # Per ora permette accesso pubblico - modifica in produzione!
+            # Richiede autenticazione utente Odoo
+            if not request.env.user.has_group('base.group_user'):
+                return request.make_response(
+                    json.dumps({
+                        'success': False,
+                        'error': 'Unauthorized: Authentication required',
+                    }),
+                    headers=[('Content-Type', 'application/json')],
+                    status=401
+                )
             
             domain = []
             if kwargs.get('active_only'):
@@ -70,7 +78,7 @@ class MembershipAPI(http.Controller):
                 status=500
             )
 
-    @http.route('/api/membership/members/<int:member_id>', auth='public', methods=['GET'], csrf=False, cors='*')
+    @http.route('/api/membership/members/<int:member_id>', auth='user', methods=['GET'], csrf=False, cors='*')
     def get_member(self, member_id, **kwargs):
         """Ottiene i dettagli di un membro"""
         try:
@@ -156,7 +164,7 @@ class MembershipAPI(http.Controller):
                 status=500
             )
 
-    @http.route('/api/membership/members', auth='public', methods=['POST'], csrf=False, cors='*')
+    @http.route('/api/membership/members', auth='user', methods=['POST'], csrf=False, cors='*')
     def create_member(self, **kwargs):
         """Crea un nuovo membro"""
         try:
@@ -215,7 +223,7 @@ class MembershipAPI(http.Controller):
                 status=500
             )
 
-    @http.route('/api/membership/cards/<string:card_number>', auth='public', methods=['GET'], csrf=False, cors='*')
+    @http.route('/api/membership/cards/<string:card_number>', auth='user', methods=['GET'], csrf=False, cors='*')
     def get_card_by_number(self, card_number, **kwargs):
         """Verifica una card tramite numero o barcode"""
         try:
@@ -274,7 +282,7 @@ class MembershipAPI(http.Controller):
                 status=500
             )
 
-    @http.route('/api/membership/types', auth='public', methods=['GET'], csrf=False, cors='*')
+    @http.route('/api/membership/types', auth='user', methods=['GET'], csrf=False, cors='*')
     def get_membership_types(self, **kwargs):
         """Ottiene la lista dei tipi di membership"""
         try:

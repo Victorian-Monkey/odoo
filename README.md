@@ -109,10 +109,18 @@ docker-compose exec db pg_dump -U odoo postgres > backup.sql
 
 ### File di Configurazione
 
-- **`config/odoo.conf`**: Configurazione principale di Odoo
-  - Modifica `admin_passwd` per cambiare la password admin
-  - Aggiusta `workers` in base alle risorse del server
-  - Configura i limiti di memoria e CPU
+- **`config/odoo.conf.template`**: Template completo di configurazione Odoo
+  - **IMPORTANTE**: Prima del primo avvio, copia il template:
+    ```bash
+    cp config/odoo.conf.template config/odoo.conf
+    ```
+  - Modifica `config/odoo.conf` e cambia:
+    - `admin_passwd` → Password sicura per operazioni database
+    - `db_password` → Password sicura per il database PostgreSQL
+  - Il file `config/odoo.conf` è in `.gitignore` per sicurezza
+  - Aggiusta `workers` in base alle risorse del server (raccomandato: CPU cores * 2 + 1)
+  - Configura i limiti di memoria e CPU secondo le tue esigenze
+  - Il template include commenti dettagliati per ogni sezione
 
 ### Variabili d'Ambiente
 
