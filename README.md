@@ -18,41 +18,40 @@ Progetto Odoo configurato per self-hosting con Docker Compose e Dokploy.
 
 ## Setup con Dokploy
 
-### Prerequisiti
+Per una guida dettagliata passo-passo, consulta **[DEPLOY_DOKPLOY.md](DEPLOY_DOKPLOY.md)**.
 
-1. Server con Docker e Docker Compose installati
-2. Dokploy installato e configurato sul server
-3. Accesso SSH al server (se necessario)
-
-### Deployment su Dokploy
+### Quick Start
 
 1. **Prepara il repository**:
-   - Assicurati che il repository sia su GitHub/GitLab
-   - Verifica che tutti i file siano committati
+   ```bash
+   git add .
+   git commit -m "Ready for Dokploy deployment"
+   git push
+   ```
 
-2. **Configura su Dokploy**:
+2. **Crea progetto su Dokploy**:
    - Accedi alla dashboard Dokploy
-   - Crea un nuovo progetto
-   - Seleziona "Docker Compose" come tipo di deployment
+   - Crea nuovo progetto → Seleziona "Docker Compose"
    - Collega il repository Git
-   - Dokploy rileverà automaticamente il `docker-compose.yml`
+   - Dokploy rileverà automaticamente `docker-compose.yml`
 
-3. **Configura le variabili d'ambiente** (opzionale):
-   - Crea un file `.env` basato su `env.template`
-   - Oppure configura le variabili direttamente in Dokploy
-   - **IMPORTANTE**: Cambia `ADMIN_PASSWD` con una password sicura!
+3. **Configura variabili d'ambiente**:
+   - `POSTGRES_PASSWORD`: Password sicura per il database
+   - `ADMIN_PASSWD`: Password admin Odoo (modifica anche in `config/odoo.conf`)
 
 4. **Deploy**:
-   - Dokploy eseguirà `docker-compose up -d`
-   - I servizi saranno disponibili su `http://your-domain:8069`
+   - Clicca "Deploy" → Dokploy eseguirà `docker-compose build && docker-compose up -d`
+   - Accedi a Odoo sul dominio configurato o `http://server-ip:8069`
 
-### Configurazione Domini
+### File Importanti per Dokploy
 
-Per configurare un dominio personalizzato in Dokploy:
+- ✅ `docker-compose.yml` - Configurazione Docker Compose
+- ✅ `Dockerfile` - Build personalizzato con dipendenze
+- ✅ `requirements.txt` - Dipendenze Python
+- ✅ `config/odoo.conf` - Configurazione Odoo
+- ✅ `.gitignore` - Esclude file sensibili
 
-1. Vai alle impostazioni del progetto
-2. Aggiungi il dominio desiderato
-3. Dokploy configurerà automaticamente il reverse proxy
+**📖 Per dettagli completi, vedi [DEPLOY_DOKPLOY.md](DEPLOY_DOKPLOY.md)**
 
 ## Sviluppo Locale
 
