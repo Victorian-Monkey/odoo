@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_membership_card" model="ir.actions.report">
+        <field name="name">Card di Membership</field>
+        <field name="model">membership.card</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">membership_card.membership_card_template</field>
+        <field name="report_file">membership_card.membership_card_template</field>
+        <field name="print_report_name">'Card - %s' % (object.card_number)</field>
+        <field name="binding_model_id" ref="membership_card.model_membership_card"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
+

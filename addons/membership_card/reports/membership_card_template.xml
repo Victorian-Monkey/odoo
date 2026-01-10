@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="membership_card_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <div class="row" style="margin-top: 50px;">
+                            <div class="col-12 text-center">
+                                <h1 style="font-size: 32px; margin-bottom: 30px;">CARD DI MEMBERSHIP</h1>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 40px; border: 3px solid #000; padding: 30px; border-radius: 10px;">
+                            <div class="col-6">
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">ASSOCIAZIONE</strong><br/>
+                                    <span style="font-size: 18px;">Victorian Monkey</span>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">MEMBRO</strong><br/>
+                                    <span style="font-size: 16px;"><t t-esc="doc.member_id.name"/></span>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">TIPO MEMBERSHIP</strong><br/>
+                                    <span style="font-size: 14px;"><t t-esc="doc.membership_type_id.name"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 text-right">
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">NUMERO CARD</strong><br/>
+                                    <span style="font-size: 20px; font-weight: bold;"><t t-esc="doc.card_number"/></span>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">BARCODE</strong><br/>
+                                    <span style="font-size: 16px; font-family: monospace;"><t t-esc="doc.barcode"/></span>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <strong style="font-size: 14px;">SCADENZA</strong><br/>
+                                    <span style="font-size: 14px;"><t t-esc="doc.expiry_date"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 30px;">
+                            <div class="col-12 text-center">
+                                <div style="border: 1px solid #ccc; padding: 20px; display: inline-block;">
+                                    <strong>QR CODE</strong><br/>
+                                    <span style="font-size: 12px; font-family: monospace;"><t t-esc="doc.qr_code"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 40px; font-size: 10px; color: #666;">
+                            <div class="col-12 text-center">
+                                <p>Questa card è personale e non trasferibile. In caso di smarrimento, contattare l'associazione.</p>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+

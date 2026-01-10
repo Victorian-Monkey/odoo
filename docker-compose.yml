@@ -1,133 +1,51 @@
+version: '3.8'
+
 services:
-  traefik:
-    image: traefik:v3.6
-    command:
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.file.directory=/dynamic"
-      - "--providers.file.watch=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.le.acme.httpchallenge=true"
-      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.le.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.le.acme.storage=/acme.json"
-      - "--log.level=INFO"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/dynamic.yml:/dynamic/dynamic.yml:ro
-      - ./traefik/acme.json:/acme.json
-    restart: unless-stopped
-
-  redis:
-    image: redis:7
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
-    volumes:
-      - ./data/redis:/data
-    restart: unless-stopped
-
-  # Monitoring stack
-  prometheus:
-    image: prom/prometheus:latest
-    user: "65534:65534"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./data/prometheus:/prometheus
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.victorianmonkey.org`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
-      - "traefik.http.routers.prometheus.tls.certresolver=le"
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      - "traefik.http.routers.prometheus.middlewares=prometheus-auth"
-      - "traefik.http.middlewares.prometheus-auth.basicauth.users=${OLLAMA_BASIC_AUTH}"
-    ports:
-      - "9090:9090"
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:latest
-    env_file:
-      - .env
-    volumes:
-      - ./data/grafana:/var/lib/grafana
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.victorianmonkey.org`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=le"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-
-  n8n:
-    image: n8nio/n8n:latest
-    env_file:
-      - .env
+  db:
+    image: postgres:15
     environment:
-      - N8N_HOST=${N8N_HOST:-n8n.victorianmonkey.org}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://${N8N_HOST:-n8n.victorianmonkey.org}/
-      - N8N_METRICS=true
-      - N8N_DIAGNOSTICS_ENABLED=true
-      # Database configuration (default: SQLite in /home/node/.n8n)
-      # Per usare PostgreSQL, decommentare e configurare nel .env:
-      # - DB_TYPE=postgresdb
-      # - DB_POSTGRESDB_HOST=${N8N_DB_HOST}
-      # - DB_POSTGRESDB_PORT=${N8N_DB_PORT:-5432}
-      # - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME}
-      # - DB_POSTGRESDB_USER=${N8N_DB_USER}
-      # - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD}
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/n8n:/home/node/.n8n
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`n8n.victorianmonkey.org`)"
-      - "traefik.http.routers.n8n.entrypoints=websecure"
-      - "traefik.http.routers.n8n.tls.certresolver=le"
-      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
-    ports:
-      - "5678:5678"
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    networks:
+      - odoo-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # ollama:
-  #   image: ollama/ollama:0.12.11
-  #   user: "1000:1000"
-  #   volumes:
-  #     - ./data/ollama:/root/.ollama
-  #   restart: unless-stopped
-  #   # Nessuna porta esposta pubblicamente - solo accesso interno
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+      - ./config:/etc/odoo
+    networks:
+      - odoo-network
+    restart: unless-stopped
+    command: ["odoo", "--config=/etc/odoo/odoo.conf"]
 
-  # ollama-webui:
-  #   image: ghcr.io/open-webui/open-webui:main
-  #   user: "1000:1000"
-  #   depends_on:
-  #     - ollama
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - OLLAMA_BASE_URL=http://ollama:11434
-  #     - WEBUI_AUTH=true
-  #     - WEBUI_SECRET_KEY=${OLLAMA_WEBUI_SECRET_KEY}
-  #     - WEBUI_NAME=Victorian Monkey AI
-  #   volumes:
-  #     - ./data/ollama-webui:/app/backend/data
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.ollama-webui.rule=Host(`ai.victorianmonkey.org`)"
-  #     - "traefik.http.routers.ollama-webui.entrypoints=websecure"
-  #     - "traefik.http.routers.ollama-webui.tls.certresolver=le"
-  #     - "traefik.http.services.ollama-webui.loadbalancer.server.port=8080"
-  #     # Basic Auth con Traefik come ulteriore livello di sicurezza
-  #     - "traefik.http.routers.ollama-webui.middlewares=ollama-auth"
-  #     - "traefik.http.middlewares.ollama-auth.basicauth.users=${OLLAMA_BASIC_AUTH}"
-  #   restart: unless-stopped
+volumes:
+  odoo-db-data:
+  odoo-web-data:
 
 networks:
-  default:
+  odoo-network:
     driver: bridge
+

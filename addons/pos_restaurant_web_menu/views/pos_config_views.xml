@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_config_form_inherit_web_menu" model="ir.ui.view">
+        <field name="name">pos.config.form.inherit.web.menu</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='module_pos_restaurant']" position="after">
+                <group string="Menu Web Ristorante">
+                    <field name="enable_web_menu"/>
+                    <field name="web_menu_url" readonly="1" attrs="{'invisible': [('enable_web_menu', '=', False)]}"/>
+                    <button name="action_generate_qr_code" string="Genera QR Code" type="object" 
+                            class="btn-primary" attrs="{'invisible': [('enable_web_menu', '=', False)]}"/>
+                    <field name="qr_code" widget="image" attrs="{'invisible': [('qr_code', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

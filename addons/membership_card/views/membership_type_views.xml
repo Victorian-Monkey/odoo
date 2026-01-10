@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_membership_type_tree" model="ir.ui.view">
+        <field name="name">membership.type.tree</field>
+        <field name="model">membership.type</field>
+        <field name="arch" type="xml">
+            <tree string="Tipi di Membership" decoration-success="active == True" decoration-muted="active == False">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="duration_months"/>
+                <field name="price"/>
+                <field name="member_count"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_membership_type_form" model="ir.ui.view">
+        <field name="name">membership.type.form</field>
+        <field name="model">membership.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo di Membership">
+                <header>
+                    <button name="%(action_member_view)d" string="Membri" type="action" 
+                            context="{'search_default_membership_type_id': active_id}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="duration_months"/>
+                            <field name="price"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                    <group string="Configurazione Fiscale (Italia)">
+                        <group>
+                            <field name="tax_exempt"/>
+                            <field name="requires_fiscal_code"/>
+                            <field name="requires_vat"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Descrizione">
+                            <field name="description" placeholder="Descrizione del tipo di membership..."/>
+                        </page>
+                        <page string="Membri">
+                            <field name="member_ids" nolabel="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="membership_start_date"/>
+                                    <field name="membership_end_date"/>
+                                    <field name="is_active"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_membership_type_search" model="ir.ui.view">
+        <field name="name">membership.type.search</field>
+        <field name="model">membership.type</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Tipo di Membership">
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Attivi" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inattivi" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Raggruppa per">
+                    <filter string="Codice" name="group_code" context="{'group_by': 'code'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_membership_type" model="ir.actions.act_window">
+        <field name="name">Tipi di Membership</field>
+        <field name="res_model">membership.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea il tuo primo tipo di membership!
+            </p>
+            <p>
+                I tipi di membership definiscono le diverse categorie di membri della tua associazione.
+            </p>
+        </field>
+    </record>
+</odoo>
+

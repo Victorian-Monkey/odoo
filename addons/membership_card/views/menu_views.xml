@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_membership_root" name="Membership" sequence="50" web_icon="membership_card,static/description/icon.png"/>
+
+    <menuitem id="menu_membership_members" name="Membri" parent="menu_membership_root" 
+              action="action_member_view" sequence="10"/>
+
+    <menuitem id="menu_membership_types" name="Tipi di Membership" parent="menu_membership_root" 
+              action="action_membership_type" sequence="20"/>
+
+    <menuitem id="menu_membership_cards" name="Card" parent="menu_membership_root" 
+              action="action_membership_card_view" sequence="30"/>
+</odoo>
+

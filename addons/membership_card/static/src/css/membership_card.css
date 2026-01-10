@@ -1,0 +1,25 @@
+/* Stili personalizzati per il modulo Membership Card */
+
+.membership-card-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.membership-card-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.membership-card-expired {
+    background-color: #dc3545;
+    color: white;
+}
+
+.membership-card-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+

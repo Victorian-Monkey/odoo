@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="web_menu_page" name="POS Web Menu Page">
+        <t t-call="website.layout">
+            <t t-set="title">Menu - <t t-esc="pos_config.name"/></t>
+            <div class="pos-web-menu-container">
+                <div class="container mt-4">
+                    <div class="row">
+                        <div class="col-12 text-center mb-4">
+                            <h1 class="display-4">Menu Ristorante</h1>
+                            <p class="lead"><t t-esc="pos_config.name"/></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Categorie e Prodotti -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div id="categories-container">
+                                <t t-foreach="categories" t-as="category">
+                                    <div class="category-section mb-5">
+                                        <h2 class="category-title"><t t-esc="category['name']"/></h2>
+                                        <div class="row">
+                                            <t t-foreach="category['products']" t-as="product">
+                                                <div class="col-md-6 col-lg-4 mb-4">
+                                                    <div class="card product-card h-100">
+                                                        <t t-if="product['image']">
+                                                            <img t-attf-src="#{product['image']}" class="card-img-top" 
+                                                                 alt="t-esc=&quot;product['name']&quot;" style="height: 200px; object-fit: cover;"/>
+                                                        </t>
+                                                        <div class="card-body d-flex flex-column">
+                                                            <h5 class="card-title"><t t-esc="product['name']"/></h5>
+                                                            <p class="card-text flex-grow-1" t-if="product['description']">
+                                                                <t t-esc="product['description']"/>
+                                                            </p>
+                                                            <div class="mt-auto">
+                                                                <p class="card-price h4 text-primary">
+                                                                    €<t t-esc="'{:.2f}'.format(product['price'])"/>
+                                                                </p>
+                                                                <button class="btn btn-primary btn-block add-to-cart-btn" 
+                                                                        t-att-data-product-id="product['id']"
+                                                                        t-att-data-product-name="product['name']"
+                                                                        t-att-data-product-price="product['price']">
+                                                                    <i class="fa fa-plus"/> Aggiungi
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Carrello -->
+                        <div class="col-md-4">
+                            <div class="card cart-card sticky-top" style="top: 20px;">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fa fa-shopping-cart"/> Carrello</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="cart-items">
+                                        <p class="text-muted text-center">Il carrello è vuoto</p>
+                                    </div>
+                                    <div class="cart-total mt-3 pt-3 border-top">
+                                        <h5>Totale: <span id="cart-total" class="text-primary">€0.00</span></h5>
+                                    </div>
+                                    <div class="mt-3">
+                                        <select id="table-select" class="form-control mb-2">
+                                            <option value="">Seleziona Tavolo</option>
+                                            <t t-foreach="tables" t-as="table">
+                                                <option t-att-value="table.id"><t t-esc="table.name"/></option>
+                                            </t>
+                                        </select>
+                                        <button id="place-order-btn" class="btn btn-success btn-block" disabled>
+                                            <i class="fa fa-check"/> Ordina
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <t t-set="pos_config_id" t-value="pos_config.id"/>
+            <script>
+                var posConfigId = <t t-esc="pos_config_id"/>;
+            </script>
+        </t>
+    </template>
+</odoo>
+
