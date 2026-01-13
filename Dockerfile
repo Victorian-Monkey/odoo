@@ -27,6 +27,10 @@ RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip setuptools wheel && \
     /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Installa psycopg2-binary nel sistema Python (necessario per script Odoo come wait-for-psql.py)
+# che usano direttamente il Python di sistema, non il venv
+RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary
+
 # Aggiungi il venv al PATH per l'utente odoo
 ENV PATH="/opt/venv/bin:$PATH"
 
