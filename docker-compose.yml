@@ -9,7 +9,7 @@ services:
       - POSTGRES_USER=odoo
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - odoo-db-data:/var/lib/postgresql/data/pgdata
+      - odoo-db:/var/lib/postgresql/data/pgdata
     networks:
       - odoo-network
     restart: unless-stopped
@@ -33,17 +33,17 @@ services:
       - USER=odoo
       - PASSWORD=odoo
     volumes:
-      - odoo-web-data:/var/lib/odoo
-      - ./addons:/mnt/extra-addons
-      - ./config:/etc/odoo
+      - odoo-web:/var/lib/odoo
+      - ../addons:/mnt/extra-addons
+      - ../config:/etc/odoo
     networks:
       - odoo-network
     restart: unless-stopped
     command: ["odoo", "--config=/etc/odoo/odoo.conf"]
 
 volumes:
-  odoo-db-data:
-  odoo-web-data:
+  odoo-db:
+  odoo-web:
 
 networks:
   odoo-network:
