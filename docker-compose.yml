@@ -9,7 +9,7 @@ services:
       - POSTGRES_USER=${DB_USER:-odoo}
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - odoo-db:/var/lib/postgresql/data/pgdata
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
     networks:
       - odoo-network
     restart: unless-stopped
@@ -43,7 +43,7 @@ services:
       - WORKERS=${WORKERS:-2}
       - PROXY_MODE=${PROXY_MODE:-True}
     volumes:
-      - odoo-web:/var/lib/odoo
+      - odoo-web-data:/var/lib/odoo
       - ./addons:/mnt/extra-addons
       - ./config:/etc/odoo
       - ./config/var/log/odoo:/var/log/odoo
