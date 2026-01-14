@@ -36,6 +36,15 @@ RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary && \
 # Installa gettext-base per envsubst (necessario per generare odoo.conf dal template)
 RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
 
+# Crea la directory per la configurazione interna (non montata come volume)
+RUN mkdir -p /opt/odoo/config && \
+    chown -R odoo:odoo /opt/odoo && \
+    chmod 755 /opt/odoo/config
+
+# Copia il template di configurazione nel container
+COPY config/odoo.conf.template /opt/odoo/config/odoo.conf.template
+RUN chown odoo:odoo /opt/odoo/config/odoo.conf.template
+
 # Copia lo script per generare odoo.conf e l'entrypoint
 COPY config/generate-odoo-conf.sh /usr/local/bin/generate-odoo-conf.sh
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

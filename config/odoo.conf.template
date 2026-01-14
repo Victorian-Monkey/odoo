@@ -2,38 +2,54 @@
 ; ============================================
 ; ODOO CONFIGURATION TEMPLATE
 ; ============================================
-; IMPORTANTE: Questo è un template. Copia questo file in odoo.conf
-; e modifica le credenziali prima di usarlo in produzione!
+; Questo template viene generato automaticamente usando variabili d'ambiente
+; Non modificare questo file direttamente - usa le variabili d'ambiente
 ;
-; Per creare il file di configurazione:
-;   cp config/odoo.conf.template config/odoo.conf
-;   nano config/odoo.conf  (o il tuo editor preferito)
-;
+; Variabili d'ambiente supportate:
+; - ADMIN_PASSWD: Password per operazioni database
+; - DB_HOST: Host del database (default: db)
+; - DB_PORT: Porta del database (default: 5432)
+; - DB_USER: Utente database (default: odoo)
+; - DB_PASSWORD: Password database
+; - DB_NAME: Nome database specifico (opzionale, lascia vuoto per multi-db)
+; - ODOO_DOMAIN: Dominio per dbfilter (es: odoo.victorianmonkey.org)
+; - HTTP_PORT: Porta HTTP (default: 8069)
+; - LOG_LEVEL: Livello di log (default: info)
+; - WORKERS: Numero di worker (default: 2)
+; - PROXY_MODE: Abilita proxy mode (default: True)
 ; ============================================
 
 ; Password per operazioni sul database (obbligatoria)
-; IMPORTANTE: Cambia questa password in produzione!
-admin_passwd = CHANGE_THIS_PASSWORD
+admin_passwd = ${ADMIN_PASSWD:-admin}
 
 ; ============================================
 ; DATABASE CONFIGURATION
 ; ============================================
-db_host = db
-db_port = 5432
-db_user = odoo
-; IMPORTANTE: Cambia questa password in produzione!
-db_password = CHANGE_THIS_PASSWORD
-db_name = False
+db_host = ${DB_HOST:-db}
+db_port = ${DB_PORT:-5432}
+db_user = ${DB_USER:-odoo}
+db_password = ${DB_PASSWORD:-odoo}
+${DB_NAME:+db_name = ${DB_NAME}}
 
-; Opzioni di gestione database
-dbfilter = ^%d$
-list_db = True
+; ============================================
+; DATABASE MANAGEMENT OPTIONS
+; ============================================
+; Installazione singola per dominio specifico
+${ODOO_DOMAIN:+dbfilter = ^${ODOO_DOMAIN}$}
+${ODOO_DOMAIN:+list_db = False}
+${ODOO_DOMAIN:+# Se ODOO_DOMAIN non è impostato, usa configurazione multi-database
+${ODOO_DOMAIN:-dbfilter = ^%d$}
+${ODOO_DOMAIN:-list_db = True}}
+; Permetti la creazione di database (necessario per inizializzazione)
+db_template = template0
 
 ; ============================================
 ; SERVER CONFIGURATION
 ; ============================================
 http_interface = 0.0.0.0
-http_port = 8069
+http_port = ${HTTP_PORT:-8069}
+; Proxy mode (necessario quando Odoo è dietro reverse proxy/Cloudflare)
+proxy_mode = ${PROXY_MODE:-True}
 
 ; ============================================
 ; ADDONS PATH
@@ -46,8 +62,9 @@ addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
 ; ============================================
 ; LOGGING
 ; ============================================
-logfile = /var/log/odoo/odoo.log
-log_level = info
+; Comment out logfile to log to stdout/stderr (Docker best practice)
+; logfile = /var/log/odoo/odoo.log
+log_level = ${LOG_LEVEL:-info}
 ; Opzioni log_level: debug, debug_sql, info, warn, error, critical
 
 ; ============================================
@@ -55,10 +72,7 @@ log_level = info
 ; ============================================
 ; Numero di worker process (0 = nessun worker, usa solo thread)
 ; Raccomandato: (CPU cores * 2) + 1
-; Per server piccoli: 2-4
-; Per server medi: 4-8
-; Per server grandi: 8-16+
-workers = 2
+workers = ${WORKERS:-2}
 max_cron_threads = 1
 
 ; ============================================
@@ -86,23 +100,20 @@ limit_time_real = 1200
 ; ============================================
 ; Scommenta e configura se necessario:
 
-; Proxy mode (se dietro un reverse proxy come nginx)
-; proxy_mode = True
-
 ; Email configuration
-; email_from = odoo@yourdomain.com
-; smtp_server = smtp.gmail.com
-; smtp_port = 587
-; smtp_ssl = True
-; smtp_user = your-email@gmail.com
-; smtp_password = your-password
+; email_from = ${EMAIL_FROM:-odoo@yourdomain.com}
+; smtp_server = ${SMTP_SERVER:-smtp.gmail.com}
+; smtp_port = ${SMTP_PORT:-587}
+; smtp_ssl = ${SMTP_SSL:-True}
+; smtp_user = ${SMTP_USER}
+; smtp_password = ${SMTP_PASSWORD}
 
 ; Session timeout (in secondi)
 ; session_cookie_httponly = True
 ; session_cookie_secure = True
 
 ; Database connection pool
-; db_maxconn = 64
+; db_maxconn = ${DB_MAXCONN:-64}
 
 ; Gevent (per migliori performance con molti utenti concorrenti)
 ; gevent_port = 8072
@@ -110,8 +121,7 @@ limit_time_real = 1200
 ; ============================================
 ; NOTES
 ; ============================================
-; - Il file odoo.conf è in .gitignore per sicurezza
-; - Non committare mai questo file con credenziali reali
-; - Usa variabili d'ambiente per le credenziali quando possibile
-; - Per Docker: le credenziali possono essere passate via environment variables
+; - Il file odoo.conf è generato automaticamente e NON viene committato (.gitignore)
+; - Usa variabili d'ambiente per configurare Odoo
 ; - Per Dokploy: configura le variabili d'ambiente nella dashboard
+; - Per Docker Compose: usa il file .env o le variabili nel docker-compose.yml
