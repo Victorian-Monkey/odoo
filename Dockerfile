@@ -33,8 +33,8 @@ RUN python3 -m venv /opt/venv && \
 RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary && \
     python3 -c "import psycopg2; print('psycopg2 installato:', psycopg2.__version__)"
 
-# Installa gettext-base per envsubst (necessario per generare odoo.conf dal template)
-RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
+# Installa gettext-base per envsubst e postgresql-client per verificare il database
+RUN apt-get update && apt-get install -y gettext-base postgresql-client && rm -rf /var/lib/apt/lists/*
 
 # Crea la directory per la configurazione interna (non montata come volume)
 RUN mkdir -p /opt/odoo/config && \
