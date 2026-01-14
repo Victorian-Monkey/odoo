@@ -76,6 +76,7 @@ ODOO_PORT=8069
 - Cambia `POSTGRES_PASSWORD` con una password sicura
 - Cambia `ADMIN_PASSWD` con una password sicura per Odoo
 - Non committare il file `.env` nel repository (è già in `.gitignore`)
+- ⚠️ **Le password devono corrispondere** tra le variabili d'ambiente e `config/odoo.conf`
 
 ### Configurazione in Dokploy
 
@@ -84,17 +85,29 @@ ODOO_PORT=8069
 3. Aggiungi le variabili necessarie
 4. Oppure carica un file `.env`
 
+### Note sulla Configurazione
+
+La configurazione in `config/odoo.conf` è già ottimizzata per:
+- ✅ **Installazione singola** su `odoo.victorianmonkey.org`
+- ✅ **Reverse proxy** di Dokploy (`proxy_mode = True`)
+- ✅ **Cloudflare** (se configurato)
+- ✅ **Database filtering** per dominio specifico
+
+Non modificare `dbfilter` o `proxy_mode` a meno che non sia strettamente necessario.
+
 ## Passo 4: Configura il Dominio
 
-1. **Aggiungi un Dominio**
+1. **Aggiungi il Dominio**
    - Vai alle impostazioni del progetto
    - Sezione "Domains" o "Domini"
-   - Aggiungi il dominio desiderato (es: `odoo.tuosito.com`)
+   - Aggiungi il dominio: **`odoo.victorianmonkey.org`**
    - Dokploy configurerà automaticamente il reverse proxy
+   - ⚠️ **IMPORTANTE**: Il dominio deve corrispondere esattamente a quello configurato in `config/odoo.conf` (`dbfilter = ^odoo\.victorianmonkey\.org$`)
 
 2. **Configura SSL**
    - Dokploy può configurare automaticamente Let's Encrypt
    - Abilita SSL/TLS per il dominio
+   - Assicurati che Cloudflare (se usato) sia configurato in modalità "Full" o "Full (strict)"
 
 ## Passo 5: Deploy
 
@@ -118,19 +131,26 @@ ODOO_PORT=8069
 ## Passo 6: Configurazione Iniziale Odoo
 
 1. **Accedi a Odoo**
-   - Apri il browser sul dominio configurato o sull'IP del server
-   - Porta 8069 se non hai configurato un dominio
+   - Apri il browser su **`https://odoo.victorianmonkey.org`**
+   - ⚠️ **IMPORTANTE**: Accedi sempre tramite il dominio configurato, non tramite IP o porta diretta
+   - La configurazione è già impostata per installazione singola (`list_db = False`)
 
 2. **Crea il Database**
-   - Segui il wizard di configurazione iniziale
-   - Inserisci i dati dell'admin
-   - Seleziona i moduli da installare
+   - Al primo accesso, Odoo mostrerà il wizard di configurazione iniziale
+   - Inserisci:
+     - **Nome Database**: `odoo` (o un nome a tua scelta)
+     - **Email**: email dell'amministratore
+     - **Password**: password per l'utente admin
+     - **Lingua**: Italiano (o quella preferita)
+     - **Paese**: Italia (o quello preferito)
+   - Clicca su "Create Database"
+   - ⏳ L'inizializzazione può richiedere alcuni minuti
 
 3. **Installa i Moduli Personalizzati**
-   - Vai su **Apps > Update Apps List**
+   - Dopo l'inizializzazione, vai su **Apps > Update Apps List**
    - Cerca e installa:
-     - "Gestione Membership Card"
-     - "POS Restaurant Web Menu"
+     - "Gestione Membership Card" (`membership_card`)
+     - "POS Restaurant Web Menu" (`pos_restaurant_web_menu`)
 
 ## Passo 7: Configurazione Post-Deployment
 
@@ -173,12 +193,21 @@ docker-compose exec db pg_dump -U odoo odoo > backup_$(date +%Y%m%d).sql
 
 ### Odoo non è accessibile
 
-1. **Verifica le Porte**
-   - Controlla che la porta 8069 sia esposta
-   - Verifica il firewall del server
+1. **Verifica il Dominio**
+   - Accedi sempre tramite `https://odoo.victorianmonkey.org`
+   - Non usare IP o porta diretta (8069) - il reverse proxy di Dokploy gestisce il routing
 
 2. **Verifica il Reverse Proxy**
-   - Se usi un dominio, verifica la configurazione del reverse proxy in Dokploy
+   - Controlla la configurazione del dominio in Dokploy
+   - Verifica che il reverse proxy passi correttamente gli header:
+     - `Host: odoo.victorianmonkey.org`
+     - `X-Forwarded-For`
+     - `X-Forwarded-Proto: https`
+   - La configurazione `proxy_mode = True` in `odoo.conf` è già attiva
+
+3. **Verifica Cloudflare (se usato)**
+   - Modalità SSL/TLS deve essere "Full" o "Full (strict)"
+   - Non usare "Flexible" perché Odoo richiede HTTPS end-to-end
 
 ### Errori di Dipendenze Python
 
@@ -194,11 +223,19 @@ docker-compose exec db pg_dump -U odoo odoo > backup_$(date +%Y%m%d).sql
 ### Database Connection Error
 
 1. **Verifica le Credenziali**
-   - Controlla `POSTGRES_USER` e `POSTGRES_PASSWORD`
+   - Controlla `POSTGRES_USER` e `POSTGRES_PASSWORD` nelle variabili d'ambiente
    - Verifica che corrispondano in `config/odoo.conf`
 
 2. **Attendi il Database**
    - Il servizio Odoo aspetta che il database sia pronto (healthcheck)
+
+### Errore `KeyError: 'ir.http'`
+
+Questo errore si verifica quando il database non è ancora stato inizializzato:
+
+1. **Soluzione**: Accedi a `https://odoo.victorianmonkey.org` e completa il wizard di inizializzazione
+2. **Verifica**: Il database viene creato automaticamente al primo accesso tramite il dominio configurato
+3. **Nota**: Non accedere tramite IP o porta diretta - usa sempre il dominio configurato
 
 ## Comandi Utili
 
