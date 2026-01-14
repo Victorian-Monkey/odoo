@@ -34,8 +34,8 @@ services:
       - PASSWORD=odoo
     volumes:
       - odoo-web:/var/lib/odoo
-      - ../addons:/mnt/extra-addons
-      - ../config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+      - ./config:/etc/odoo
     networks:
       - odoo-network
     restart: unless-stopped
