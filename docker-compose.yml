@@ -42,6 +42,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - WORKERS=${WORKERS:-2}
       - PROXY_MODE=${PROXY_MODE:-True}
+      - AUTO_UPDATE_MODULES=${AUTO_UPDATE_MODULES:-False}
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./addons:/mnt/extra-addons
