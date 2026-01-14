@@ -29,11 +29,32 @@ echo "Usando template: $TEMPLATE_FILE"
 # Crea la directory di output (sempre scrivibile perché interna al container)
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 
-# Genera odoo.conf dal template usando envsubst in /tmp (dove abbiamo sempre permessi)
-envsubst '${ADMIN_PASSWD} ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASSWORD} ${DB_NAME} ${ODOO_DOMAIN} ${HTTP_PORT} ${LOG_LEVEL} ${WORKERS} ${PROXY_MODE} ${EMAIL_FROM} ${SMTP_SERVER} ${SMTP_PORT} ${SMTP_SSL} ${SMTP_USER} ${SMTP_PASSWORD} ${DB_MAXCONN}' < "$TEMPLATE_FILE" > "$TEMP_FILE"
+# Copia il template nel file temporaneo
+cp "$TEMPLATE_FILE" "$TEMP_FILE"
 
-# Rimuovi eventuali righe con sintassi errata rimaste dopo envsubst (es: ${VAR:+...})
-sed -i '/\${[A-Z_]*:+/d' "$TEMP_FILE"
+# Sostituisci le variabili con i loro valori (gestendo i default)
+# Usa sed per sostituire ${VAR:-default} con il valore della variabile o il default
+sed -i "s|\${ADMIN_PASSWD:-admin}|${ADMIN_PASSWD:-admin}|g" "$TEMP_FILE"
+sed -i "s|\${DB_HOST:-db}|${DB_HOST:-db}|g" "$TEMP_FILE"
+sed -i "s|\${DB_PORT:-5432}|${DB_PORT:-5432}|g" "$TEMP_FILE"
+sed -i "s|\${DB_USER:-odoo}|${DB_USER:-odoo}|g" "$TEMP_FILE"
+sed -i "s|\${DB_PASSWORD:-odoo}|${DB_PASSWORD:-odoo}|g" "$TEMP_FILE"
+sed -i "s|\${HTTP_PORT:-8069}|${HTTP_PORT:-8069}|g" "$TEMP_FILE"
+sed -i "s|\${LOG_LEVEL:-info}|${LOG_LEVEL:-info}|g" "$TEMP_FILE"
+sed -i "s|\${WORKERS:-2}|${WORKERS:-2}|g" "$TEMP_FILE"
+sed -i "s|\${PROXY_MODE:-True}|${PROXY_MODE:-True}|g" "$TEMP_FILE"
+
+# Sostituisci variabili senza default (se non impostate, rimuovi la riga o lascia vuoto)
+if [ -n "$ODOO_DOMAIN" ]; then
+    sed -i "s|\${ODOO_DOMAIN}|${ODOO_DOMAIN}|g" "$TEMP_FILE"
+fi
+if [ -n "$DB_NAME" ]; then
+    sed -i "s|\${DB_NAME}|${DB_NAME}|g" "$TEMP_FILE"
+fi
+
+# Rimuovi eventuali righe con sintassi errata rimaste (es: ${VAR:-default} non sostituite)
+sed -i '/\${[A-Z_]*:-/d' "$TEMP_FILE"
+sed -i '/\${[A-Z_]*}/d' "$TEMP_FILE"
 
 # Aggiungi db_name se DB_NAME è impostato
 if [ -n "$DB_NAME" ]; then
