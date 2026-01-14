@@ -53,8 +53,8 @@ services:
     command: ["odoo", "--config=/opt/odoo/config/odoo.conf"]
 
 volumes:
-  odoo-db:
-  odoo-web:
+  odoo-db-data:
+  odoo-web-data:
 
 networks:
   odoo-network:
