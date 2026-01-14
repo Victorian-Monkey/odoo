@@ -13,6 +13,8 @@
 ; - DB_PASSWORD: Password database
 ; - DB_NAME: Nome database specifico (opzionale, lascia vuoto per multi-db)
 ; - ODOO_DOMAIN: Dominio per dbfilter (es: odoo.victorianmonkey.org)
+; - LIST_DB: Mostra lista database nella schermata di login (True/False)
+;   Default: False se ODOO_DOMAIN è impostato, True se non impostato
 ; - HTTP_PORT: Porta HTTP (default: 8069)
 ; - LOG_LEVEL: Livello di log (default: info)
 ; - WORKERS: Numero di worker (default: 2)
@@ -35,9 +37,8 @@ db_password = ${DB_PASSWORD:-odoo}
 ; DATABASE MANAGEMENT OPTIONS
 ; ============================================
 ; Configurazione database filtering
-; (gestita automaticamente dallo script in base a ODOO_DOMAIN)
-; Se ODOO_DOMAIN è impostato: dbfilter e list_db=False vengono aggiunti
-; Se ODOO_DOMAIN non è impostato: dbfilter = ^%d$ e list_db = True vengono aggiunti
+; - dbfilter: se ODOO_DOMAIN è impostato, usa il dominio, altrimenti ^%d$ (multi-database)
+; - list_db: controllato da variabile LIST_DB (default: True se ODOO_DOMAIN non impostato, False se impostato)
 ; Permetti la creazione di database (necessario per inizializzazione)
 db_template = template0
 

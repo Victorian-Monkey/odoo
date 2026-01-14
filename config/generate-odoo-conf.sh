@@ -43,6 +43,7 @@ sed -i "s|\${HTTP_PORT:-8069}|${HTTP_PORT:-8069}|g" "$TEMP_FILE"
 sed -i "s|\${LOG_LEVEL:-info}|${LOG_LEVEL:-info}|g" "$TEMP_FILE"
 sed -i "s|\${WORKERS:-2}|${WORKERS:-2}|g" "$TEMP_FILE"
 sed -i "s|\${PROXY_MODE:-True}|${PROXY_MODE:-True}|g" "$TEMP_FILE"
+sed -i "s|\${LIST_DB:-True}|${LIST_DB:-True}|g" "$TEMP_FILE"
 
 # Sostituisci variabili senza default (se non impostate, rimuovi la riga o lascia vuoto)
 if [ -n "$ODOO_DOMAIN" ]; then
@@ -66,14 +67,15 @@ fi
 sed -i '/^dbfilter = /d' "$TEMP_FILE"
 sed -i '/^list_db = /d' "$TEMP_FILE"
 
-# Gestisci ODOO_DOMAIN: se impostato, usa dbfilter e list_db=False
-# Se non impostato, usa configurazione multi-database
+# Gestisci dbfilter e list_db in base alle variabili d'ambiente
+# dbfilter: se ODOO_DOMAIN è impostato, usa il dominio, altrimenti ^%d$ (multi-database)
+# list_db: usa la variabile LIST_DB (default: True)
 if [ -n "$ODOO_DOMAIN" ]; then
-    # Trova la riga con "; Configurazione database filtering" e inserisci dopo
-    sed -i "/^; Configurazione database filtering/a dbfilter = ^${ODOO_DOMAIN}$\nlist_db = False" "$TEMP_FILE"
+    # Installazione singola con dominio specifico
+    sed -i "/^; Configurazione database filtering/a dbfilter = ^${ODOO_DOMAIN}$\nlist_db = ${LIST_DB:-False}" "$TEMP_FILE"
 else
     # Configurazione multi-database
-    sed -i "/^; Configurazione database filtering/a dbfilter = ^%d$\nlist_db = True" "$TEMP_FILE"
+    sed -i "/^; Configurazione database filtering/a dbfilter = ^%d$\nlist_db = ${LIST_DB:-True}" "$TEMP_FILE"
 fi
 
 # Rimuovi righe vuote multiple
@@ -97,6 +99,7 @@ echo "  - DB_HOST: ${DB_HOST:-db} (default)"
 echo "  - DB_PORT: ${DB_PORT:-5432} (default)"
 echo "  - DB_USER: ${DB_USER:-odoo} (default)"
 echo "  - ODOO_DOMAIN: ${ODOO_DOMAIN:-non impostato (multi-database)}"
+echo "  - LIST_DB: ${LIST_DB:-$(if [ -n "$ODOO_DOMAIN" ]; then echo "False"; else echo "True"; fi)} (default)"
 echo "  - HTTP_PORT: ${HTTP_PORT:-8069} (default)"
 echo "  - LOG_LEVEL: ${LOG_LEVEL:-info} (default)"
 echo "  - WORKERS: ${WORKERS:-2} (default)"
