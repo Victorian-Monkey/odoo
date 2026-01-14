@@ -29,10 +29,13 @@ RUN python3 -m venv /opt/venv && \
 
 # Installa psycopg2-binary nel sistema Python (necessario per script Odoo come wait-for-psql.py)
 # che usano direttamente il Python di sistema, non il venv
-RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary
+# Installiamo sempre psycopg2-binary per assicurarci che sia disponibile
+RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary && \
+    python3 -c "import psycopg2; print('psycopg2 installato:', psycopg2.__version__)"
 
-# Aggiungi il venv al PATH per l'utente odoo
+# Aggiungi il venv al PATH e assicurati che Python trovi i moduli di sistema
 ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH="/usr/local/lib/python3.12/dist-packages:/usr/lib/python3/dist-packages:${PYTHONPATH:-}"
 
 # Cambia utente dopo l'installazione
 USER odoo
