@@ -29,17 +29,15 @@ db_host = ${DB_HOST:-db}
 db_port = ${DB_PORT:-5432}
 db_user = ${DB_USER:-odoo}
 db_password = ${DB_PASSWORD:-odoo}
-${DB_NAME:+db_name = ${DB_NAME}}
+; db_name viene aggiunto automaticamente se DB_NAME è impostato
 
 ; ============================================
 ; DATABASE MANAGEMENT OPTIONS
 ; ============================================
-; Installazione singola per dominio specifico
-${ODOO_DOMAIN:+dbfilter = ^${ODOO_DOMAIN}$}
-${ODOO_DOMAIN:+list_db = False}
-${ODOO_DOMAIN:+# Se ODOO_DOMAIN non è impostato, usa configurazione multi-database
-${ODOO_DOMAIN:-dbfilter = ^%d$}
-${ODOO_DOMAIN:-list_db = True}}
+; Configurazione database filtering
+; (gestita automaticamente dallo script in base a ODOO_DOMAIN)
+; Se ODOO_DOMAIN è impostato: dbfilter e list_db=False vengono aggiunti
+; Se ODOO_DOMAIN non è impostato: dbfilter = ^%d$ e list_db = True vengono aggiunti
 ; Permetti la creazione di database (necessario per inizializzazione)
 db_template = template0
 

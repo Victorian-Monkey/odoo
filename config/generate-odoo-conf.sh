@@ -32,11 +32,18 @@ mkdir -p "$(dirname "$OUTPUT_FILE")"
 # Genera odoo.conf dal template usando envsubst in /tmp (dove abbiamo sempre permessi)
 envsubst '${ADMIN_PASSWD} ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASSWORD} ${DB_NAME} ${ODOO_DOMAIN} ${HTTP_PORT} ${LOG_LEVEL} ${WORKERS} ${PROXY_MODE} ${EMAIL_FROM} ${SMTP_SERVER} ${SMTP_PORT} ${SMTP_SSL} ${SMTP_USER} ${SMTP_PASSWORD} ${DB_MAXCONN}' < "$TEMPLATE_FILE" > "$TEMP_FILE"
 
+# Rimuovi eventuali righe con sintassi errata rimaste dopo envsubst (es: ${VAR:+...})
+sed -i '/\${[A-Z_]*:+/d' "$TEMP_FILE"
+
 # Aggiungi db_name se DB_NAME è impostato
 if [ -n "$DB_NAME" ]; then
     # Inserisci db_name dopo db_password
     sed -i "/^db_password = /a db_name = $DB_NAME" "$TEMP_FILE"
 fi
+
+# Rimuovi eventuali righe dbfilter e list_db esistenti (per evitare duplicati)
+sed -i '/^dbfilter = /d' "$TEMP_FILE"
+sed -i '/^list_db = /d' "$TEMP_FILE"
 
 # Gestisci ODOO_DOMAIN: se impostato, usa dbfilter e list_db=False
 # Se non impostato, usa configurazione multi-database
