@@ -10,6 +10,7 @@ __pycache__/
 dist/
 build/
 .eggs/
+config/odoo.conf
 
 # IDE
 .vscode/

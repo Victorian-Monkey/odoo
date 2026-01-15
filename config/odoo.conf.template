@@ -39,6 +39,8 @@ db_password = ${DB_PASSWORD:-odoo}
 ; Configurazione database filtering
 ; - dbfilter: se ODOO_DOMAIN è impostato, usa il dominio, altrimenti ^%d$ (multi-database)
 ; - list_db: controllato da variabile LIST_DB (default: True se ODOO_DOMAIN non impostato, False se impostato)
+;   NOTA: Con list_db=False, l'interfaccia di creazione database non è accessibile.
+;         Per inizializzare, imposta temporaneamente LIST_DB=True o crea il database manualmente.
 ; Permetti la creazione di database (necessario per inizializzazione)
 db_template = template0
 
