@@ -23,33 +23,6 @@ config/odoo.conf
 .DS_Store
 Thumbs.db
 
-# Odoo specific
-*.log
-*.pot
-*.po
-*.mo
-*.pot~
-*.po~
-*.mo~
-*.bak
-*.orig
-*.rej
-*.tmp
-*.diff
-*.patch
-*.pyc
-*.pyo
-*.pyd
-*.py~
-*.sql
-*.sql.gz
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-*.db-*
 
 # Environment
 .env

@@ -17,15 +17,15 @@ sync-addons:
     - git config user.email "ci@gitlab"
     - git config user.name "GitLab CI"
   script:
-    - ./odoovcloud.load.sh
     - |
+      ./odoovcloud.load.sh
       if git diff --quiet && git diff --staged --quiet; then
         echo "Nessun cambiamento."
         exit 0
       fi
-    - git add -A
-    - git commit -m "chore(sync): aggiorna addons da modules.conf [skip ci]"
-    - git push "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" HEAD:${CI_COMMIT_REF_NAME} -o ci.skip
+      git add -A
+      git commit -m "chore(sync): aggiorna addons da modules.conf [skip ci]"
+      git push "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" HEAD:${CI_COMMIT_REF_NAME} -o ci.skip
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
