@@ -1,0 +1,32 @@
+# Pipeline per sync addons: esegue odoovcloud.load.sh e fa commit+push dei cambiamenti.
+#
+# Prerequisito: abilita il push con job token nel progetto:
+#   Settings → CI/CD → Job token permissions → Allow Git push requests to the repository
+#
+# La job è manuale su push; se la pipeline è lanciata da uno schedule (cron giornaliero),
+# la job parte in automatico. Per creare lo schedule: CI/CD → Schedules → New schedule.
+
+stages:
+  - sync
+
+sync-addons:
+  stage: sync
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git bash
+    - git config user.email "ci@gitlab"
+    - git config user.name "GitLab CI"
+  script:
+    - ./odoovcloud.load.sh
+    - |
+      if git diff --quiet && git diff --staged --quiet; then
+        echo "Nessun cambiamento."
+        exit 0
+      fi
+    - git add -A
+    - git commit -m "chore(sync): aggiorna addons da modules.conf [skip ci]"
+    - git push "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" HEAD:${CI_COMMIT_REF_NAME} -o ci.skip
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+    - when: manual
