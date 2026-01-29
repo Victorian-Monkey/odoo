@@ -86,3 +86,6 @@ backup_*.sql
 # Odoo configuration with sensitive data
 config/odoo.conf
 
+# odoovcloud.load.sh state
+addons/.odoovcloud_managed
+
