@@ -4,8 +4,27 @@ from odoo import http, _
 from odoo.http import request
 from odoo.exceptions import ValidationError, UserError
 import logging
+from types import SimpleNamespace
 
 _logger = logging.getLogger(__name__)
+
+
+def _mailing_lists_safe(env):
+    """Restituisce liste mailing come oggetti con id, name e description (description vuoto se il modello non ce l'ha)."""
+    if 'mailing.list' not in env:
+        return []
+    records = env['mailing.list'].sudo().search([
+        ('active', '=', True),
+        ('is_public', '=', True),
+    ])
+    return [
+        SimpleNamespace(
+            id=m.id,
+            name=m.name,
+            description=getattr(m, 'description', None) or '',
+        )
+        for m in records
+    ]
 
 
 class TesseramentoController(http.Controller):
@@ -27,13 +46,8 @@ class TesseramentoController(http.Controller):
             ('attivo', '=', True)
         ])
         
-        # Ottieni liste di marketing disponibili (se il modulo mass_mailing è installato)
-        mailing_lists = []
-        if 'mailing.list' in request.env:
-            mailing_lists = request.env['mailing.list'].sudo().search([
-                ('active', '=', True),
-                ('is_public', '=', True),  # Solo liste pubbliche
-            ])
+        # Liste mailing con solo id/name (compatibile con versioni senza campo description)
+        mailing_lists = _mailing_lists_safe(request.env)
         
         values = {
             'associazioni': associazioni,
@@ -443,13 +457,8 @@ class TesseramentoController(http.Controller):
             ('attivo', '=', True)
         ])
         
-        # Ottieni liste di marketing disponibili
-        mailing_lists = []
-        if 'mailing.list' in request.env:
-            mailing_lists = request.env['mailing.list'].sudo().search([
-                ('active', '=', True),
-                ('is_public', '=', True),
-            ])
+        # Liste mailing con solo id/name (compatibile con versioni senza campo description)
+        mailing_lists = _mailing_lists_safe(request.env)
         
         # Ottieni stati e paesi per i campi indirizzo
         states = request.env['res.country.state'].sudo().search([])
