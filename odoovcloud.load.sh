@@ -86,8 +86,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   echo "  Clone in $tmp_dir ..."
   git clone --depth 1 --branch "$ref" "$url" "$tmp_dir"
 
-  echo "  Copia in $ADDONS_DIR/$modulo ..."
+  echo "  Copia in $ADDONS_DIR/$modulo (solo file, senza .git) ..."
   cp -a "$tmp_dir" "$ADDONS_DIR/$modulo"
+  rm -rf "$ADDONS_DIR/$modulo/.git"
   rm -rf "$tmp_dir"
 
   echo "  OK."
