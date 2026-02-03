@@ -9,6 +9,7 @@ class AssociazioneCulturale(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Nome', required=True, tracking=True)
+    image_128 = fields.Image(string='Logo', max_width=128, max_height=128)
     company_id = fields.Many2one('res.partner', string='Azienda', required=True, 
                                   domain="[('is_company', '=', True)]", tracking=True)
     codice_fiscale = fields.Char(string='Codice Fiscale', tracking=True)

@@ -19,6 +19,9 @@ Modulo per la **gestione del tesseramento** di associazioni culturali: iscrizion
 - **Website:** form tesseramento (`/tesseramento`), pagamento, success/error; area “Le mie tessere” (`/my/tessere`), rinnovo, reclama profilo.
 - **Integrazioni:** `payment`, `mail`, `mass_mailing` (newsletter in fase iscrizione).
 
+#### Documenti da leggere:
+- MODULE_DOCUMENTATION.md
+
 ### Dipendenze (manifest)
 
 `base`, `website`, `auth_signup`, `payment`, `mail`, `mass_mailing`.

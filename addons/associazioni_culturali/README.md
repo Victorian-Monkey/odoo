@@ -71,8 +71,8 @@ Per contribuire al modulo:
 
 ## Licenza
 
-LGPL-3
+Proprietary
 
 ## Autore
 
-Your Company
+Vicedomini Softworks

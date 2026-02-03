@@ -22,6 +22,9 @@
         <field name="arch" type="xml">
             <form string="Associazione">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="image_128" widget="image" class="oe_avatar"/>
+                    </div>
                     <group>
                         <group>
                             <field name="name"/>

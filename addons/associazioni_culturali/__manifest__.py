@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Associazioni',
-    'version': '1.0.1',
+    'version': '1.0.2',
     'category': 'Services',
     'summary': 'Gestione associazioni (culturali, sportive, di volontariato, ecc.)',
     'description': """
@@ -15,6 +15,9 @@
     """,
     'author': 'Vicedomini Softworks',
     'website': 'https://www.vicedominisoftworks.com',
+    'icon': 'static/description/icon.png',
+    'price': 250.0,
+    'currency': 'EUR',
     'depends': ['base', 'website', 'auth_signup', 'payment', 'mail', 'mass_mailing'],
     'data': [
         'security/security.xml',
@@ -38,5 +41,5 @@
     'installable': True,
     'application': True,
     'auto_install': False,
-    'license': 'LGPL-3',
+    'license': 'Other proprietary',
 }
