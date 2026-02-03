@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_piano_tesseramento_tree" model="ir.ui.view">
+        <field name="name">piano.tesseramento.tree</field>
+        <field name="model">piano.tesseramento</field>
+        <field name="arch" type="xml">
+            <tree string="Piani Tesseramento">
+                <field name="name"/>
+                <field name="tipo"/>
+                <field name="costo_tessera"/>
+                <field name="anno_riferimento"/>
+                <field name="attivo"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_piano_tesseramento_form" model="ir.ui.view">
+        <field name="name">piano.tesseramento.form</field>
+        <field name="model">piano.tesseramento</field>
+        <field name="arch" type="xml">
+            <form string="Piano Tesseramento">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="tipo"/>
+                            <field name="attivo"/>
+                        </group>
+                        <group>
+                            <field name="costo_tessera"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="anno_riferimento" attrs="{'invisible': [('tipo', '!=', 'annuale_solare')], 'required': [('tipo', '=', 'annuale_solare')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tessere">
+                            <field name="tessere_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="associato_id"/>
+                                    <field name="associazione_id"/>
+                                    <field name="data_emissione"/>
+                                    <field name="data_scadenza"/>
+                                    <field name="stato"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Note">
+                            <field name="note" placeholder="Note aggiuntive..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_piano_tesseramento_search" model="ir.ui.view">
+        <field name="name">piano.tesseramento.search</field>
+        <field name="model">piano.tesseramento</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Piani Tesseramento">
+                <field name="name"/>
+                <field name="tipo"/>
+                <filter string="Attivi" name="attivi" domain="[('attivo', '=', True)]"/>
+                <filter string="Anno Solare" name="annuale_solare" domain="[('tipo', '=', 'annuale_solare')]"/>
+                <filter string="Calendario" name="calendario" domain="[('tipo', '=', 'calendario')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_piano_tesseramento" model="ir.actions.act_window">
+        <field name="name">Piani Tesseramento</field>
+        <field name="res_model">piano.tesseramento</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea il tuo primo Piano Tesseramento
+            </p>
+            <p>
+                I piani di tesseramento definiscono il costo e la durata delle tessere.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_piani_tesseramento"
+              name="Piani Tesseramento"
+              sequence="30"
+              action="action_piano_tesseramento"
+              parent="menu_associazioni_culturali_root"/>
+
+</odoo>

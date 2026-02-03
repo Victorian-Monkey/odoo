@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_associato_user,associato.user,model_associato,base.group_user,1,1,1,0
+access_associato_manager,associato.manager,model_associato,base.group_system,1,1,1,1
+access_associazione_culturale_user,associazione.culturale.user,model_associazione_culturale,base.group_user,1,1,1,1
+access_associazione_culturale_manager,associazione.culturale.manager,model_associazione_culturale,base.group_system,1,1,1,1
+access_piano_tesseramento_user,piano.tesseramento.user,model_piano_tesseramento,base.group_user,1,1,1,1
+access_piano_tesseramento_manager,piano.tesseramento.manager,model_piano_tesseramento,base.group_system,1,1,1,1
+access_tessera_user,tessera.user,model_tessera,base.group_user,1,1,1,1
+access_tessera_manager,tessera.manager,model_tessera,base.group_system,1,1,1,1
+access_tesseramento_pending_user,tesseramento.pending.user,model_tesseramento_pending,base.group_user,1,0,1,0
+access_tesseramento_pending_manager,tesseramento.pending.manager,model_tesseramento_pending,base.group_system,1,1,1,1

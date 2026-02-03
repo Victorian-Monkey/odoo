@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tesseramento_form" name="Form Tesseramento">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-2">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-id-card me-2"></i>Richiesta Tesseramento
+                                    </h2>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="not is_logged_in">
+                                        <div class="alert alert-info">
+                                            <i class="fa fa-info-circle me-2"></i>
+                                            <strong>Attenzione:</strong> Per richiedere una tessera è necessario essere registrati. 
+                                            <a href="/web/login?redirect=/tesseramento" class="alert-link">Accedi</a> o 
+                                            <a href="/web/signup?redirect=/tesseramento" class="alert-link">Registrati</a>.
+                                        </div>
+                                    </t>
+                                    
+                                    <t t-if="is_logged_in">
+                                        <div class="alert alert-success">
+                                            <i class="fa fa-check-circle me-2"></i>
+                                            Benvenuto <strong t-esc="user.name"/>! Compila il form per richiedere la tua tessera.
+                                        </div>
+                                    </t>
+                                    
+                                    <form method="post" action="/tesseramento/submit" class="mt-4">
+                                        <div class="mb-3">
+                                            <label for="associazione_id" class="form-label">
+                                                Associazione <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="associazione_id" id="associazione_id" class="form-select" required="required">
+                                                <option value="">-- Seleziona Associazione --</option>
+                                                <t t-foreach="associazioni" t-as="associazione">
+                                                    <option t-att-value="associazione.id" t-esc="associazione.name"/>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="piano_id" class="form-label">
+                                                Piano Tesseramento <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="piano_id" id="piano_id" class="form-select" required="required">
+                                                <option value="">-- Seleziona Piano --</option>
+                                                <t t-foreach="piani" t-as="piano">
+                                                    <option t-att-value="piano.id">
+                                                        <t t-esc="piano.name"/> - 
+                                                        <t t-esc="'Anno Solare' if piano.tipo == 'annuale_solare' else 'Calendario'"/> - 
+                                                        €<t t-esc="'{:.2f}'.format(piano.costo_tessera)"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        
+                                        <t t-if="is_logged_in">
+                                            <t t-set="associato_prefill" t-value="user.associato_ids[0] if user.associato_ids else None"/>
+                                            <hr class="my-4"/>
+                                            <h5 class="mb-3">Dati Fiscali</h5>
+                                            
+                                            <div class="mb-3">
+                                                <label for="codice_fiscale" class="form-label">
+                                                    Codice Fiscale <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="codice_fiscale" id="codice_fiscale" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="associato_prefill and associato_prefill.codice_fiscale or ''"
+                                                       placeholder="Inserisci il tuo codice fiscale"/>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="data_nascita" class="form-label">
+                                                        Data di Nascita <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="date" name="data_nascita" id="data_nascita" 
+                                                           class="form-control" required="required"
+                                                           t-att-value="associato_prefill and associato_prefill.data_nascita or ''"/>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="luogo_nascita" class="form-label">
+                                                        Luogo di Nascita <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" name="luogo_nascita" id="luogo_nascita" 
+                                                           class="form-control" required="required"
+                                                           t-att-value="associato_prefill and associato_prefill.luogo_nascita or ''"
+                                                           placeholder="Città di nascita"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="street" class="form-label">
+                                                    Via e Numero Civico <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="street" id="street" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="(associato_prefill and associato_prefill.street) or (user.partner_id and user.partner_id.street) or ''"
+                                                       placeholder="Via, numero civico"/>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="street2" class="form-label">Indirizzo Secondario</label>
+                                                <input type="text" name="street2" id="street2" 
+                                                       class="form-control"
+                                                       t-att-value="(associato_prefill and associato_prefill.street2) or (user.partner_id and user.partner_id.street2) or ''"
+                                                       placeholder="Scala, interno, ecc."/>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="zip" class="form-label">
+                                                        CAP <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" name="zip" id="zip" 
+                                                           class="form-control" required="required"
+                                                           t-att-value="(associato_prefill and associato_prefill.zip) or (user.partner_id and user.partner_id.zip) or ''"
+                                                           placeholder="CAP"/>
+                                                </div>
+                                                
+                                                <div class="col-md-8 mb-3">
+                                                    <label for="city" class="form-label">
+                                                        Città <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" name="city" id="city" 
+                                                           class="form-control" required="required"
+                                                           t-att-value="(associato_prefill and associato_prefill.city) or (user.partner_id and user.partner_id.city) or ''"
+                                                           placeholder="Città"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="state_id" class="form-label">Provincia</label>
+                                                    <select name="state_id" id="state_id" class="form-select">
+                                                        <option value="">-- Seleziona Provincia --</option>
+                                                        <t t-set="country_states" t-value="request.env['res.country.state'].sudo().search([('country_id.code', '=', 'IT')])"/>
+                                                        <t t-foreach="country_states" t-as="state">
+                                                            <option t-att-value="state.id" 
+                                                                    t-att-selected="(associato_prefill and associato_prefill.state_id and associato_prefill.state_id.id == state.id) or (user.partner_id and user.partner_id.state_id and user.partner_id.state_id.id == state.id)">
+                                                                <t t-esc="state.name"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="country_id" class="form-label">Paese</label>
+                                                    <select name="country_id" id="country_id" class="form-select">
+                                                        <t t-set="countries" t-value="request.env['res.country'].sudo().search([])"/>
+                                                        <t t-foreach="countries" t-as="country">
+                                                            <option t-att-value="country.id" 
+                                                                    t-att-selected="(associato_prefill and associato_prefill.country_id and associato_prefill.country_id.id == country.id) or (user.partner_id and user.partner_id.country_id and user.partner_id.country_id.id == country.id) or country.code == 'IT'">
+                                                                <t t-esc="country.name"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="telefono" class="form-label">
+                                                    Telefono <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="tel" name="telefono" id="telefono" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="(associato_prefill and associato_prefill.phone) or (user.partner_id and user.partner_id.phone) or ''"
+                                                       placeholder="Numero di telefono"/>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="note" class="form-label">Note</label>
+                                                <textarea name="note" id="note" class="form-control" rows="3"
+                                                          placeholder="Note aggiuntive (opzionale)"></textarea>
+                                            </div>
+                                            
+                                            <t t-if="mailing_lists and len(mailing_lists) > 0">
+                                                <hr class="my-4"/>
+                                                <h5 class="mb-3">Interessi</h5>
+                                                <div class="mb-3">
+                                                    <p class="text-muted small mb-3">
+                                                        Seleziona le newsletter a cui desideri iscriverti per ricevere aggiornamenti e comunicazioni:
+                                                    </p>
+                                                    <div class="form-check-group">
+                                                        <t t-foreach="mailing_lists" t-as="mailing_list">
+                                                            <t t-set="is_subscribed" t-value="False"/>
+                                                            <t t-if="user and user.partner_id and user.partner_id.email">
+                                                                <t t-set="user_contacts" t-value="request.env['mailing.contact'].sudo().search([('email_normalized', '=', user.partner_id.email.lower().strip())])"/>
+                                                                <t t-foreach="user_contacts" t-as="contact">
+                                                                    <t t-if="mailing_list.id in contact.list_ids.ids">
+                                                                        <t t-set="is_subscribed" t-value="True"/>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" 
+                                                                       type="checkbox" 
+                                                                       name="mailing_list_ids" 
+                                                                       t-att-id="'mailing_list_' + str(mailing_list.id)"
+                                                                       t-att-value="mailing_list.id"
+                                                                       t-att-checked="is_subscribed"/>
+                                                                <label class="form-check-label" 
+                                                                       t-att-for="'mailing_list_' + str(mailing_list.id)">
+                                                                    <t t-esc="mailing_list.name"/>
+                                                                    <t t-if="mailing_list.description">
+                                                                        <small class="text-muted d-block">
+                                                                            <t t-esc="mailing_list.description"/>
+                                                                        </small>
+                                                                    </t>
+                                                                </label>
+                                                            </div>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </t>
+                                        
+                                        <div class="d-grid gap-2 mt-4">
+                                            <t t-if="is_logged_in">
+                                                <button type="submit" class="btn btn-primary btn-lg">
+                                                    <i class="fa fa-check me-2"></i>Invia Richiesta
+                                                </button>
+                                            </t>
+                                            <t t-if="not is_logged_in">
+                                                <a href="/web/login?redirect=/tesseramento" class="btn btn-primary btn-lg">
+                                                    <i class="fa fa-sign-in me-2"></i>Accedi per continuare
+                                                </a>
+                                            </t>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="tesseramento_success" name="Tesseramento Successo">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-2">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-check-circle me-2"></i>Tesseramento Completato!
+                                    </h2>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="mb-4">
+                                        <i class="fa fa-check-circle fa-5x text-success"></i>
+                                    </div>
+                                    <h3 class="mb-3">La tua richiesta di tesseramento è stata inviata con successo!</h3>
+                                    
+                                    <t t-if="tessera">
+                                        <div class="alert alert-info text-start mt-4">
+                                            <h5 class="alert-heading">Dettagli Tessera</h5>
+                                            <hr/>
+                                            <p class="mb-1"><strong>Numero Tessera:</strong> <span t-esc="tessera.name"/></p>
+                                            <p class="mb-1"><strong>Associazione:</strong> <span t-esc="associazione.name"/></p>
+                                            <p class="mb-1"><strong>Piano:</strong> <span t-esc="piano.name"/></p>
+                                            <p class="mb-1"><strong>Data Emissione:</strong> 
+                                                <span t-esc="tessera.data_emissione.strftime('%d/%m/%Y') if tessera.data_emissione else ''"/>
+                                            </p>
+                                            <p class="mb-1"><strong>Data Scadenza:</strong> 
+                                                <span t-esc="tessera.data_scadenza.strftime('%d/%m/%Y') if tessera.data_scadenza else ''"/>
+                                            </p>
+                                            <p class="mb-0"><strong>Importo:</strong> €<span t-esc="'{:.2f}'.format(tessera.importo_pagato)"/></p>
+                                        </div>
+                                    </t>
+                                    
+                                    <div class="mt-4">
+                                        <a href="/tesseramento" class="btn btn-primary me-2">
+                                            <i class="fa fa-plus me-2"></i>Richiedi Altra Tessera
+                                        </a>
+                                        <a href="/" class="btn btn-secondary">
+                                            <i class="fa fa-home me-2"></i>Torna alla Home
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="tesseramento_error" name="Tesseramento Errore">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-2">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-danger text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-exclamation-triangle me-2"></i>Errore
+                                    </h2>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="mb-4">
+                                        <i class="fa fa-times-circle fa-5x text-danger"></i>
+                                    </div>
+                                    <h3 class="mb-3">Si è verificato un errore</h3>
+                                    <div class="alert alert-danger" t-if="error">
+                                        <p class="mb-0" t-esc="error"/>
+                                    </div>
+                                    <div class="mt-4">
+                                        <a href="/tesseramento" class="btn btn-primary">
+                                            <i class="fa fa-arrow-left me-2"></i>Torna al Form
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Pagina Reclama profilo associato -->
+    <template id="associato_reclama" name="Reclama profilo associato">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-2">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-link me-2"></i>Associa il tuo profilo
+                                    </h2>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="error">
+                                        <div class="alert alert-warning"><t t-esc="error"/></div>
+                                    </t>
+                                    <t t-if="associati_da_reclamare and len(associati_da_reclamare) > 0">
+                                        <p class="mb-3">Sono stati trovati profili associato con la stessa email del tuo account. Clicca su "Associa a me" per collegarli al tuo account e vedere le relative tessere.</p>
+                                        <ul class="list-group mb-4">
+                                            <t t-foreach="associati_da_reclamare" t-as="a">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span><t t-esc="a.email"/> — <t t-esc="a.codice_fiscale or 'N/D'"/></span>
+                                                    <form method="post" t-att-action="'/my/associato/reclama/' + str(a.id)" style="display: inline;">
+                                                        <input type="hidden" name="redirect" t-att-value="redirect or '/my/tessere'"/>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Associa a me</button>
+                                                    </form>
+                                                </li>
+                                            </t>
+                                        </ul>
+                                    </t>
+                                    <t t-if="associati_da_reclamare and len(associati_da_reclamare) == 0 and not error">
+                                        <div class="alert alert-info">
+                                            Non ci sono profili da reclamare con la tua email. Puoi <a href="/tesseramento" class="alert-link">richiedere una tessera</a> per creare un profilo associato.
+                                        </div>
+                                    </t>
+                                    <a href="/my/tessere" class="btn btn-secondary">Torna alle mie tessere</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Vista Utente - Le Mie Tessere -->
+    <template id="my_tessere" name="Le Mie Tessere">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-10 offset-lg-1">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-id-card me-2"></i>Le Mie Tessere
+                                    </h2>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="not associati and not tessera_attuale_id">
+                                        <div class="alert alert-info">
+                                            <i class="fa fa-info-circle me-2"></i>
+                                            Non hai ancora un profilo associato collegato. Se hai già richiesto una tessera con la tua email, 
+                                            <a href="/my/associato/reclama" class="alert-link">reclama il profilo</a>. Altrimenti 
+                                            <a href="/tesseramento" class="alert-link">richiedi una tessera</a>.
+                                        </div>
+                                    </t>
+                                    <!-- Tessera Attuale -->
+                                    <t t-if="tessera_attuale_id">
+                                        <div class="alert" t-attf-class="alert-warning if tessera_in_scadenza else alert-success">
+                                            <h4 class="alert-heading">
+                                                <i class="fa" t-attf-class="fa-exclamation-triangle if tessera_in_scadenza else fa-check-circle me-2"></i>
+                                                Tessera Attuale
+                                                <t t-if="tessera_in_scadenza">
+                                                    <span class="badge bg-warning text-dark">In Scadenza</span>
+                                                </t>
+                                            </h4>
+                                            <div class="row mt-3">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Numero Tessera:</strong> <span t-esc="tessera_attuale_id.name"/></p>
+                                                    <p class="mb-1"><strong>Associazione:</strong> <span t-esc="tessera_attuale_id.associazione_id.name"/></p>
+                                                    <p class="mb-1"><strong>Piano:</strong> <span t-esc="tessera_attuale_id.piano_id.name"/></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Data Emissione:</strong> 
+                                                        <span t-esc="tessera_attuale_id.data_emissione.strftime('%d/%m/%Y') if tessera_attuale_id.data_emissione else ''"/>
+                                                    </p>
+                                                    <p class="mb-1"><strong>Data Scadenza:</strong> 
+                                                        <span t-esc="tessera_attuale_id.data_scadenza.strftime('%d/%m/%Y') if tessera_attuale_id.data_scadenza else ''"/>
+                                                    </p>
+                                                    <p class="mb-1"><strong>Importo:</strong> €<span t-esc="'{:.2f}'.format(tessera_attuale_id.importo_pagato)"/></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    
+                                    <t t-if="not tessera_attuale_id and associati">
+                                        <div class="alert alert-info">
+                                            <i class="fa fa-info-circle me-2"></i>
+                                            Non hai una tessera attiva. <a href="/tesseramento" class="alert-link">Richiedi una tessera</a>.
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- Form Rinnovo -->
+                                    <t t-if="tessera_attuale_id or tessere_passate">
+                                        <hr class="my-4"/>
+                                        <h5 class="mb-3">Rinnova Tessera</h5>
+                                        <div class="d-grid gap-2 mt-3">
+                                            <a href="/my/tessere/rinnova" class="btn btn-primary">
+                                                <i class="fa fa-refresh me-2"></i>Rinnova Tessera
+                                            </a>
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- Tessere Passate -->
+                                    <t t-if="tessere_passate">
+                                        <hr class="my-4"/>
+                                        <h5 class="mb-3">Tessere Passate</h5>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Numero</th>
+                                                        <th>Associazione</th>
+                                                        <th>Piano</th>
+                                                        <th>Data Emissione</th>
+                                                        <th>Data Scadenza</th>
+                                                        <th>Stato</th>
+                                                        <th>Importo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="tessere_passate" t-as="tessera">
+                                                        <tr>
+                                                            <td><span t-esc="tessera.name"/></td>
+                                                            <td><span t-esc="tessera.associazione_id.name"/></td>
+                                                            <td><span t-esc="tessera.piano_id.name"/></td>
+                                                            <td>
+                                                                <span t-esc="tessera.data_emissione.strftime('%d/%m/%Y') if tessera.data_emissione else ''"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-esc="tessera.data_scadenza.strftime('%d/%m/%Y') if tessera.data_scadenza else ''"/>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge" t-attf-class="bg-secondary if tessera.stato == 'scaduta' else bg-danger">
+                                                                    <t t-esc="tessera.stato == 'scaduta' and 'Scaduta' or 'Annullata'"/>
+                                                                </span>
+                                                            </td>
+                                                            <td>€<span t-esc="'{:.2f}'.format(tessera.importo_pagato)"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </t>
+                                    
+                                    <div class="mt-4">
+                                        <a href="/tesseramento" class="btn btn-primary me-2">
+                                            <i class="fa fa-plus me-2"></i>Richiedi Nuova Tessera
+                                        </a>
+                                        <a href="/" class="btn btn-secondary">
+                                            <i class="fa fa-home me-2"></i>Torna alla Home
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Menu Website -->
+    <template id="tesseramento_menu" name="Menu Tesseramento" inherit_id="website.main_menu">
+        <xpath expr="//ul[hasclass('navbar-nav')]" position="inside">
+            <li class="nav-item">
+                <a class="nav-link" href="/tesseramento">
+                    <i class="fa fa-id-card me-1"></i>Tesseramento
+                </a>
+            </li>
+            <t t-if="not request.env.user._is_public()">
+                <li class="nav-item">
+                    <a class="nav-link" href="/my/tessere">
+                        <i class="fa fa-user me-1"></i>Le Mie Tessere
+                    </a>
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Form Rinnovo Tessera -->
+    <template id="rinnova_tessera_form" name="Form Rinnovo Tessera">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 offset-lg-2">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">
+                                        <i class="fa fa-refresh me-2"></i>Rinnovo Tessera
+                                    </h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle me-2"></i>
+                                        <strong>Conferma i tuoi dati</strong> e seleziona l'associazione e il piano per il rinnovo della tessera.
+                                    </div>
+                                    
+                                    <form method="post" action="/my/tessere/rinnova" class="mt-4">
+                                        <div class="mb-3">
+                                            <label for="associazione_id" class="form-label">
+                                                Associazione <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="associazione_id" id="associazione_id" class="form-select" required="required">
+                                                <option value="">-- Seleziona Associazione --</option>
+                                                <t t-foreach="associazioni" t-as="associazione">
+                                                    <option t-att-value="associazione.id" 
+                                                            t-att-selected="associazione_id and associazione_id == associazione.id">
+                                                        <t t-esc="associazione.name"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="piano_id" class="form-label">
+                                                Piano Tesseramento <span class="text-danger">*</span>
+                                            </label>
+                                            <select name="piano_id" id="piano_id" class="form-select" required="required">
+                                                <option value="">-- Seleziona Piano --</option>
+                                                <t t-foreach="piani" t-as="piano">
+                                                    <option t-att-value="piano.id" 
+                                                            t-att-selected="piano_id and piano_id == piano.id">
+                                                        <t t-esc="piano.name"/> - 
+                                                        <t t-esc="'Anno Solare' if piano.tipo == 'annuale_solare' else 'Calendario'"/> - 
+                                                        €<t t-esc="'{:.2f}'.format(piano.costo_tessera)"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        
+                                        <hr class="my-4"/>
+                                        <h5 class="mb-3">Conferma Dati Fiscali</h5>
+                                        
+                                        <div class="mb-3">
+                                            <label for="codice_fiscale" class="form-label">
+                                                Codice Fiscale <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" name="codice_fiscale" id="codice_fiscale" 
+                                                   class="form-control" required="required"
+                                                   t-att-value="associato and associato.codice_fiscale or ''"
+                                                   placeholder="Inserisci il tuo codice fiscale"/>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="data_nascita" class="form-label">
+                                                    Data di Nascita <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="date" name="data_nascita" id="data_nascita" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="associato and associato.data_nascita or ''"/>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="luogo_nascita" class="form-label">
+                                                    Luogo di Nascita <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="luogo_nascita" id="luogo_nascita" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="associato and associato.luogo_nascita or ''"
+                                                       placeholder="Città di nascita"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="street" class="form-label">
+                                                Via e Numero Civico <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" name="street" id="street" 
+                                                   class="form-control" required="required"
+                                                   t-att-value="(associato and associato.street) or (user.partner_id and user.partner_id.street) or ''"
+                                                   placeholder="Via, numero civico"/>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="street2" class="form-label">Indirizzo Secondario</label>
+                                            <input type="text" name="street2" id="street2" 
+                                                   class="form-control"
+                                                   t-att-value="(associato and associato.street2) or (user.partner_id and user.partner_id.street2) or ''"
+                                                   placeholder="Scala, interno, ecc."/>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="zip" class="form-label">
+                                                    CAP <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="zip" id="zip" 
+                                                       class="form-control" required="required"
+                                                       t-att-value="(associato and associato.zip) or (user.partner_id and user.partner_id.zip) or ''"
+                                                       placeholder="CAP"/>
+                                            </div>
+                                            
+                                            <div class="col-md-8 mb-3">
+                                                <label for="city" class="form-label">
+                                                    Città <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" name="city" id="city" 
+                                                   class="form-control" required="required"
+                                                   t-att-value="(associato and associato.city) or (user.partner_id and user.partner_id.city) or ''"
+                                                   placeholder="Città"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="state_id" class="form-label">Provincia</label>
+                                                <select name="state_id" id="state_id" class="form-select">
+                                                    <option value="">-- Seleziona Provincia --</option>
+                                                    <t t-foreach="states" t-as="state">
+                                                        <option t-att-value="state.id" 
+                                                                t-att-selected="(associato and associato.state_id and associato.state_id.id == state.id) or (user.partner_id and user.partner_id.state_id and user.partner_id.state_id.id == state.id)">
+                                                            <t t-esc="state.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="country_id" class="form-label">Paese</label>
+                                                <select name="country_id" id="country_id" class="form-select">
+                                                    <option value="">-- Seleziona Paese --</option>
+                                                    <t t-foreach="countries" t-as="country">
+                                                        <option t-att-value="country.id" 
+                                                                t-att-selected="(associato and associato.country_id and associato.country_id.id == country.id) or (user.partner_id and user.partner_id.country_id and user.partner_id.country_id.id == country.id) or country.code == 'IT'">
+                                                            <t t-esc="country.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="telefono" class="form-label">
+                                                Telefono <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="tel" name="telefono" id="telefono" 
+                                                   class="form-control" required="required"
+                                                   t-att-value="(associato and associato.phone) or (user.partner_id and user.partner_id.phone) or ''"
+                                                   placeholder="Numero di telefono"/>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="note" class="form-label">Note</label>
+                                            <textarea name="note" id="note" class="form-control" rows="3"
+                                                      placeholder="Note aggiuntive (opzionale)"></textarea>
+                                        </div>
+                                        
+                                        <t t-if="mailing_lists and len(mailing_lists) > 0">
+                                            <hr class="my-4"/>
+                                            <h5 class="mb-3">Interessi</h5>
+                                            <div class="mb-3">
+                                                <p class="text-muted small mb-3">
+                                                    Seleziona gli interessi a cui desideri iscriverti per ricevere aggiornamenti e comunicazioni:
+                                                </p>
+                                                <div class="form-check-group">
+                                                    <t t-foreach="mailing_lists" t-as="mailing_list">
+                                                        <t t-set="is_subscribed" t-value="False"/>
+                                                        <t t-if="user and user.partner_id and user.partner_id.email">
+                                                            <t t-set="user_contacts" t-value="request.env['mailing.contact'].sudo().search([('email_normalized', '=', user.partner_id.email.lower().strip())])"/>
+                                                            <t t-foreach="user_contacts" t-as="contact">
+                                                                <t t-if="mailing_list.id in contact.list_ids.ids">
+                                                                    <t t-set="is_subscribed" t-value="True"/>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" 
+                                                                   type="checkbox" 
+                                                                   name="mailing_list_ids" 
+                                                                   t-att-id="'mailing_list_' + str(mailing_list.id)"
+                                                                   t-att-value="mailing_list.id"
+                                                                   t-att-checked="is_subscribed"/>
+                                                            <label class="form-check-label" 
+                                                                   t-att-for="'mailing_list_' + str(mailing_list.id)">
+                                                                <t t-esc="mailing_list.name"/>
+                                                                <t t-if="mailing_list.description">
+                                                                    <small class="text-muted d-block">
+                                                                        <t t-esc="mailing_list.description"/>
+                                                                    </small>
+                                                                </t>
+                                                            </label>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+                                        
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="fa fa-check me-2"></i>Conferma e Paga
+                                            </button>
+                                            <a href="/my/tessere" class="btn btn-secondary">
+                                                <i class="fa fa-arrow-left me-2"></i>Annulla
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

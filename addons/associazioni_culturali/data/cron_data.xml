@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Cron Job per aggiornare stati tessere scadute -->
+        <record id="ir_cron_aggiorna_stati_tessere" model="ir.cron">
+            <field name="name">Aggiorna Stati Tessere Scadute</field>
+            <field name="model_id" ref="base.model_ir_model"/>
+            <field name="state">code</field>
+            <field name="code">env['tessera']._cron_aggiorna_stati()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <field name="doall">False</field>
+        </record>
+
+        <!-- Cron Job per annullare tesseramenti pending scaduti -->
+        <record id="ir_cron_annulla_pending_scaduti" model="ir.cron">
+            <field name="name">Annulla Tesseramenti Pending Scaduti</field>
+            <field name="model_id" ref="base.model_ir_model"/>
+            <field name="state">code</field>
+            <field name="code">env['tesseramento.pending']._cron_annulla_pending_scaduti()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+            <field name="doall">False</field>
+        </record>
+    </data>
+</odoo>

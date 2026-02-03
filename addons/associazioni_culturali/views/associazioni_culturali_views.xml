@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_associazione_culturale_tree" model="ir.ui.view">
+        <field name="name">associazione.culturale.tree</field>
+        <field name="model">associazione.culturale</field>
+        <field name="arch" type="xml">
+            <tree string="Associazioni Culturali">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="codice_fiscale"/>
+                <field name="email"/>
+                <field name="attivo"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_associazione_culturale_form" model="ir.ui.view">
+        <field name="name">associazione.culturale.form</field>
+        <field name="model">associazione.culturale</field>
+        <field name="arch" type="xml">
+            <form string="Associazione Culturale">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="codice_fiscale"/>
+                            <field name="partita_iva"/>
+                            <field name="data_costituzione"/>
+                            <field name="attivo"/>
+                        </group>
+                        <group>
+                            <field name="telefono"/>
+                            <field name="email"/>
+                            <field name="sito_web"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="indirizzo" placeholder="Indirizzo completo..."/>
+                    </group>
+                    <notebook>
+                        <page string="Tessere">
+                            <field name="tessere_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="associato_id"/>
+                                    <field name="piano_id"/>
+                                    <field name="data_emissione"/>
+                                    <field name="data_scadenza"/>
+                                    <field name="stato"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Note">
+                            <field name="note" placeholder="Note aggiuntive..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_associazione_culturale_search" model="ir.ui.view">
+        <field name="name">associazione.culturale.search</field>
+        <field name="model">associazione.culturale</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Associazioni Culturali">
+                <field name="name"/>
+                <field name="codice_fiscale"/>
+                <field name="email"/>
+                <filter string="Attive" name="attive" domain="[('attivo', '=', True)]"/>
+                <filter string="Non Attive" name="non_attive" domain="[('attivo', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_associazione_culturale" model="ir.actions.act_window">
+        <field name="name">Associazioni Culturali</field>
+        <field name="res_model">associazione.culturale</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea la tua prima Associazione Culturale
+            </p>
+            <p>
+                Le associazioni culturali possono essere gestite da qui.
+            </p>
+        </field>
+    </record>
+
+    <!-- Associato: Tree -->
+    <record id="view_associato_tree" model="ir.ui.view">
+        <field name="name">associato.tree</field>
+        <field name="model">associato</field>
+        <field name="arch" type="xml">
+            <tree string="Associati">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="user_id"/>
+                <field name="codice_fiscale"/>
+                <field name="phone"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Associato: Form -->
+    <record id="view_associato_form" model="ir.ui.view">
+        <field name="name">associato.form</field>
+        <field name="model">associato</field>
+        <field name="arch" type="xml">
+            <form string="Associato">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="email"/>
+                            <field name="user_id" options="{'no_create': True}"/>
+                            <field name="codice_fiscale"/>
+                            <field name="data_nascita"/>
+                            <field name="luogo_nascita"/>
+                        </group>
+                        <group>
+                            <field name="street"/>
+                            <field name="street2"/>
+                            <field name="city"/>
+                            <field name="zip"/>
+                            <field name="state_id"/>
+                            <field name="country_id"/>
+                            <field name="phone"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tessere">
+                            <field name="tessere_ids" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Associato: Search -->
+    <record id="view_associato_search" model="ir.ui.view">
+        <field name="name">associato.search</field>
+        <field name="model">associato</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Associati">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="codice_fiscale"/>
+                <filter string="Collegati" name="collegati" domain="[('user_id', '!=', False)]"/>
+                <filter string="Non collegati" name="non_collegati" domain="[('user_id', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Associato: Action -->
+    <record id="action_associato" model="ir.actions.act_window">
+        <field name="name">Associati</field>
+        <field name="res_model">associato</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                I profili associato vengono creati al tesseramento. Un utente con la stessa email può reclamarli dalla pagina "Reclama profilo".
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_associazioni_culturali_root"
+              name="Associazioni Culturali"
+              sequence="10"/>
+
+    <menuitem id="menu_associato"
+              name="Associati"
+              sequence="5"
+              action="action_associato"
+              parent="menu_associazioni_culturali_root"/>
+
+    <menuitem id="menu_associazioni_culturali"
+              name="Associazioni"
+              sequence="10"
+              action="action_associazione_culturale"
+              parent="menu_associazioni_culturali_root"/>
+
+</odoo>

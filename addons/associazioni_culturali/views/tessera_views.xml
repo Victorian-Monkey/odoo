@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_tessera_tree" model="ir.ui.view">
+        <field name="name">tessera.tree</field>
+        <field name="model">tessera</field>
+        <field name="arch" type="xml">
+            <tree string="Tessere" decoration-success="stato == 'attiva'" decoration-muted="stato == 'scaduta'">
+                <field name="name"/>
+                <field name="associato_id"/>
+                <field name="associazione_id"/>
+                <field name="piano_id"/>
+                <field name="data_emissione"/>
+                <field name="data_scadenza"/>
+                <field name="stato"/>
+                <field name="importo_pagato"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_tessera_form" model="ir.ui.view">
+        <field name="name">tessera.form</field>
+        <field name="model">tessera</field>
+        <field name="arch" type="xml">
+            <form string="Tessera">
+                <header>
+                    <button name="action_annulla" string="Annulla" type="object" 
+                            attrs="{'invisible': [('stato', '=', 'annullata')]}" 
+                            class="oe_highlight"/>
+                    <button name="action_riattiva" string="Riattiva" type="object" 
+                            attrs="{'invisible': [('stato', '!=', 'annullata')]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="associato_id" options="{'no_create': True}"/>
+                            <field name="associazione_id" options="{'no_create': True}"/>
+                            <field name="piano_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="data_emissione"/>
+                            <field name="data_scadenza" readonly="1"/>
+                            <field name="stato"/>
+                            <field name="importo_pagato"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Note">
+                            <field name="note" placeholder="Note aggiuntive..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_tessera_search" model="ir.ui.view">
+        <field name="name">tessera.search</field>
+        <field name="model">tessera</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Tessere">
+                <field name="name"/>
+                <field name="associato_id"/>
+                <field name="associazione_id"/>
+                <field name="piano_id"/>
+                <filter string="Attive" name="attive" domain="[('stato', '=', 'attiva')]"/>
+                <filter string="Scadute" name="scadute" domain="[('stato', '=', 'scaduta')]"/>
+                <filter string="Annullate" name="annullate" domain="[('stato', '=', 'annullata')]"/>
+                <separator/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_tessera" model="ir.actions.act_window">
+        <field name="name">Tessere</field>
+        <field name="res_model">tessera</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea la tua prima Tessera
+            </p>
+            <p>
+                Le tessere collegano un utente a un'associazione attraverso un piano di tesseramento.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_tessere"
+              name="Tessere"
+              sequence="40"
+              action="action_tessera"
+              parent="menu_associazioni_culturali_root"/>
+
+</odoo>

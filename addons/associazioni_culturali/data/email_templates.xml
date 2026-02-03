@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Template Email Conferma Tesseramento -->
+        <record id="email_template_tessera_creata" model="mail.template">
+            <field name="name">Tessera Creata - Conferma</field>
+            <field name="model">tessera</field>
+            <field name="subject">Tessera {{ object.name }} - Conferma Tesseramento</field>
+            <field name="email_from">{{ (object.associazione_id.email or user.email) | safe }}</field>
+            <field name="email_to">{{ object.associato_id.email }}</field>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+                        <h1 style="margin: 0;">Tesseramento Completato!</h1>
+                    </div>
+                    
+                    <div style="padding: 20px; background-color: #f9f9f9;">
+                        <p>Gentile {{ object.associato_id.user_id.name if object.associato_id.user_id else object.associato_id.email }},</p>
+                        
+                        <p>La tua richiesta di tesseramento è stata completata con successo.</p>
+                        
+                        <div style="background-color: white; padding: 15px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+                            <h3 style="margin-top: 0; color: #4CAF50;">Dettagli Tessera</h3>
+                            <p><strong>Numero Tessera:</strong> {{ object.name }}</p>
+                            <p><strong>Associazione:</strong> {{ object.associazione_id.name }}</p>
+                            <p><strong>Piano:</strong> {{ object.piano_id.name }}</p>
+                            <p><strong>Data Emissione:</strong> {{ object.data_emissione.strftime('%d/%m/%Y') if object.data_emissione else '' }}</p>
+                            <p><strong>Data Scadenza:</strong> {{ object.data_scadenza.strftime('%d/%m/%Y') if object.data_scadenza else '' }}</p>
+                            <p><strong>Importo Pagato:</strong> €{{ '{:.2f}'.format(object.importo_pagato) }}</p>
+                        </div>
+                        
+                        <p>Puoi visualizzare e gestire le tue tessere accedendo al tuo account:</p>
+                        <p style="text-align: center; margin: 20px 0;">
+                            {% if object.associato_id.user_id %}
+                            <a href="{{ object.associato_id.user_id.partner_id._get_website_url() }}/my/tessere" 
+                               style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                Visualizza le Mie Tessere
+                            </a>
+                            {% else %}
+                            Accedi al sito con questa email e reclama il profilo per vedere le tue tessere.
+                            {% endif %}
+                        </p>
+                        
+                        <p>Grazie per il tuo supporto!</p>
+                        
+                        <p style="margin-top: 30px; font-size: 12px; color: #666;">
+                            {{ object.associazione_id.name }}<br/>
+                            {% if object.associazione_id.email %}{{ object.associazione_id.email }}<br/>{% endif %}
+                            {% if object.associazione_id.telefono %}Tel: {{ object.associazione_id.telefono }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>
