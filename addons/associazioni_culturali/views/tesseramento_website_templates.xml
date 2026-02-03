@@ -207,11 +207,6 @@
                                                                 <label class="form-check-label" 
                                                                        t-att-for="'mailing_list_' + str(mailing_list.id)">
                                                                     <t t-esc="mailing_list.name"/>
-                                                                    <t t-if="mailing_list.description">
-                                                                        <small class="text-muted d-block">
-                                                                            <t t-esc="mailing_list.description"/>
-                                                                        </small>
-                                                                    </t>
                                                                 </label>
                                                             </div>
                                                         </t>
@@ -702,11 +697,6 @@
                                                             <label class="form-check-label" 
                                                                    t-att-for="'mailing_list_' + str(mailing_list.id)">
                                                                 <t t-esc="mailing_list.name"/>
-                                                                <t t-if="mailing_list.description">
-                                                                    <small class="text-muted d-block">
-                                                                        <t t-esc="mailing_list.description"/>
-                                                                    </small>
-                                                                </t>
                                                             </label>
                                                         </div>
                                                     </t>
