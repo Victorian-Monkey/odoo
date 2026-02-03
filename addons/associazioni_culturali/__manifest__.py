@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Associazioni Culturali',
+    'name': 'Associazioni',
     'version': '1.0.1',
     'category': 'Services',
-    'summary': 'Gestione associazioni culturali',
+    'summary': 'Gestione associazioni (culturali, sportive, di volontariato, ecc.)',
     'description': """
-        Modulo per la gestione di associazioni culturali
-        =================================================
+        Modulo per la gestione di associazioni di ogni tipo
+        ===================================================
         
         Questo modulo fornisce funzionalità per:
-        * Gestione associazioni culturali
+        * Gestione associazioni (culturali, sportive, di volontariato, ecc.)
         * Gestione membri e soci
         * Gestione eventi e attività
     """,

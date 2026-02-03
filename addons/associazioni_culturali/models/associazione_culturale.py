@@ -5,7 +5,7 @@ from odoo import models, fields, api, _
 
 class AssociazioneCulturale(models.Model):
     _name = 'associazione.culturale'
-    _description = _('Associazione Culturale')
+    _description = _('Associazione')
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Nome', required=True, tracking=True)
