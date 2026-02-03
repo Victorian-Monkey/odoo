@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 {
     'name': 'Associazioni Culturali',
     'version': '1.0.0',
