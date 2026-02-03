@@ -5,7 +5,7 @@
         <field name="name">tessera.tree</field>
         <field name="model">tessera</field>
         <field name="arch" type="xml">
-            <tree string="Tessere" decoration-success="stato == 'attiva'" decoration-muted="stato == 'scaduta'">
+            <list string="Tessere" decoration-success="stato == 'attiva'" decoration-muted="stato == 'scaduta'">
                 <field name="name"/>
                 <field name="associato_id"/>
                 <field name="associazione_id"/>
@@ -14,7 +14,7 @@
                 <field name="data_scadenza"/>
                 <field name="stato"/>
                 <field name="importo_pagato"/>
-            </tree>
+            </list>
         </field>
     </record>
 

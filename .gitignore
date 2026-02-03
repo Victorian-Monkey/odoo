@@ -60,5 +60,5 @@ backup_*.sql
 config/odoo.conf
 
 # odoovcloud.load.sh state
-addons/.odoovcloud_managed
+addons/.odoo_loader_managed
 

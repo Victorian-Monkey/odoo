@@ -5,13 +5,13 @@
         <field name="name">piano.tesseramento.tree</field>
         <field name="model">piano.tesseramento</field>
         <field name="arch" type="xml">
-            <tree string="Piani Tesseramento">
+            <list string="Piani Tesseramento">
                 <field name="name"/>
                 <field name="tipo"/>
                 <field name="costo_tessera"/>
                 <field name="anno_riferimento"/>
                 <field name="attivo"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -37,14 +37,14 @@
                     <notebook>
                         <page string="Tessere">
                             <field name="tessere_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="associato_id"/>
                                     <field name="associazione_id"/>
                                     <field name="data_emissione"/>
                                     <field name="data_scadenza"/>
                                     <field name="stato"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Note">
