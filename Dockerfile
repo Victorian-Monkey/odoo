@@ -41,6 +41,10 @@ RUN mkdir -p /opt/odoo/config && \
     chown -R odoo:odoo /opt/odoo && \
     chmod 755 /opt/odoo/config
 
+# Copia gli addons personalizzati in immagine (non più montati a runtime)
+COPY ./addons /opt/extra-addons
+RUN chown -R odoo:odoo /opt/extra-addons
+
 # Copia il template di configurazione nel container
 COPY config/odoo.conf.template /opt/odoo/config/odoo.conf.template
 RUN chown odoo:odoo /opt/odoo/config/odoo.conf.template

@@ -56,9 +56,9 @@ proxy_mode = ${PROXY_MODE:-True}
 ; ADDONS PATH
 ; ============================================
 ; Percorsi dove Odoo cerca i moduli
-; /mnt/extra-addons = moduli personalizzati (montato da ./addons)
+; /opt/extra-addons = moduli personalizzati (copiati in immagine da ./addons)
 ; /usr/lib/python3/dist-packages/odoo/addons = moduli standard Odoo
-addons_path = /mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+addons_path = /opt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
 
 ; ============================================
 ; LOGGING

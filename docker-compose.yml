@@ -43,7 +43,6 @@ services:
       - AUTO_UPDATE_MODULES=${AUTO_UPDATE_MODULES:-False}
     volumes:
       - odoo-web-data:/var/lib/odoo
-      - ./addons:/mnt/extra-addons
       - ./config:/etc/odoo
       - ./config/var/log/odoo:/var/log/odoo
     networks:
