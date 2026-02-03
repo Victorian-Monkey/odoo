@@ -4,12 +4,10 @@
         <!-- Security Groups -->
         <record id="group_associazioni_culturali_manager" model="res.groups">
             <field name="name">Manager</field>
-            <field name="category_id" ref="base.module_category_services"/>
         </record>
 
         <record id="group_associazioni_culturali_user" model="res.groups">
             <field name="name">User</field>
-            <field name="category_id" ref="base.module_category_services"/>
         </record>
     </data>
 </odoo>
