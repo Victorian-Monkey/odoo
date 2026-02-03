@@ -31,7 +31,7 @@
                         <group>
                             <field name="costo_tessera"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="anno_riferimento" attrs="{'invisible': [('tipo', '!=', 'annuale_solare')], 'required': [('tipo', '=', 'annuale_solare')]}"/>
+                            <field name="anno_riferimento" invisible="tipo != 'annuale_solare'" required="tipo == 'annuale_solare'"/>
                         </group>
                     </group>
                     <notebook>

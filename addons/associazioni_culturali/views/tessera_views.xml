@@ -26,10 +26,10 @@
             <form string="Tessera">
                 <header>
                     <button name="action_annulla" string="Annulla" type="object" 
-                            attrs="{'invisible': [('stato', '=', 'annullata')]}" 
+                            invisible="stato == 'annullata'" 
                             class="oe_highlight"/>
                     <button name="action_riattiva" string="Riattiva" type="object" 
-                            attrs="{'invisible': [('stato', '!=', 'annullata')]}"/>
+                            invisible="stato != 'annullata'"/>
                 </header>
                 <sheet>
                     <group>
