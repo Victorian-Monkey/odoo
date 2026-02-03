@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Voci di menu nel navbar: metodo consigliato Odoo 17+ (no xpath su website.main_menu) -->
+        <record id="menu_tesseramento" model="website.menu">
+            <field name="name">Tesseramento</field>
+            <field name="url">/tesseramento</field>
+            <field name="parent_id" search="[('url', '=', '/default-main-menu'), ('website_id', '=', 1)]"/>
+            <field name="website_id">1</field>
+            <field name="sequence" type="int">50</field>
+        </record>
+        <record id="menu_my_tessere" model="website.menu">
+            <field name="name">Le Mie Tessere</field>
+            <field name="url">/my/tessere</field>
+            <field name="parent_id" search="[('url', '=', '/default-main-menu'), ('website_id', '=', 1)]"/>
+            <field name="website_id">1</field>
+            <field name="sequence" type="int">51</field>
+        </record>
+    </data>
+</odoo>

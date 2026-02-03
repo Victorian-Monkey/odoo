@@ -21,6 +21,7 @@
         'security/ir.model.access.csv',
         'data/email_templates.xml',
         'data/cron_data.xml',
+        'data/website_menu.xml',
         'views/associazioni_culturali_views.xml',
         'views/piano_tesseramento_views.xml',
         'views/tessera_views.xml',

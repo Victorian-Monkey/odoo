@@ -502,23 +502,7 @@
         </t>
     </template>
 
-    <!-- Menu Website -->
-    <template id="tesseramento_menu" name="Menu Tesseramento" inherit_id="website.main_menu">
-        <xpath expr="//ul[hasclass('navbar-nav')]" position="inside">
-            <li class="nav-item">
-                <a class="nav-link" href="/tesseramento">
-                    <i class="fa fa-id-card me-1"></i>Tesseramento
-                </a>
-            </li>
-            <t t-if="not request.env.user._is_public()">
-                <li class="nav-item">
-                    <a class="nav-link" href="/my/tessere">
-                        <i class="fa fa-user me-1"></i>Le Mie Tessere
-                    </a>
-                </li>
-            </t>
-        </xpath>
-    </template>
+    <!-- Menu website: voci aggiunte via website.menu in data/website_menu.xml (compatibile Odoo 17+) -->
 
     <!-- Form Rinnovo Tessera -->
     <template id="rinnova_tessera_form" name="Form Rinnovo Tessera">
