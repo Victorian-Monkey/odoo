@@ -119,8 +119,12 @@
                         <group>
                             <field name="name" readonly="1"/>
                             <field name="email"/>
+                            <field name="nome_legale"/>
+                            <field name="cognome_legale"/>
+                            <field name="nome_elezione"/>
                             <field name="user_id" options="{'no_create': True}"/>
-                            <field name="codice_fiscale"/>
+                            <field name="no_codice_fiscale"/>
+                            <field name="codice_fiscale" invisible="no_codice_fiscale"/>
                             <field name="data_nascita"/>
                             <field name="luogo_nascita"/>
                         </group>

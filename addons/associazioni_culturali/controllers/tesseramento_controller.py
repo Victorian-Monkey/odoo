@@ -76,7 +76,11 @@ class TesseramentoController(http.Controller):
             # Recupera i dati del form
             associazione_id = post.get('associazione_id')
             piano_id = post.get('piano_id')
-            codice_fiscale = post.get('codice_fiscale', '').strip()
+            no_codice_fiscale = post.get('no_codice_fiscale') in ('on', '1', 'true', 'yes')
+            codice_fiscale = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            nome_legale = post.get('nome_legale', '').strip()
+            cognome_legale = post.get('cognome_legale', '').strip()
+            nome_elezione = post.get('nome_elezione', '').strip()
             data_nascita = post.get('data_nascita', '').strip()
             luogo_nascita = post.get('luogo_nascita', '').strip()
             street = post.get('street', '').strip()
@@ -121,10 +125,23 @@ class TesseramentoController(http.Controller):
                 })
             Associato = request.env['associato'].sudo()
             associato = Associato.search([('email', '=', user_email)], limit=1)
+            # Precompila nome/cognome da account se non inviati
+            if not nome_legale and not cognome_legale and user.partner_id and user.partner_id.name:
+                parts = (user.partner_id.name or '').strip().split(None, 1)
+                nome_legale = nome_legale or (parts[0] if parts else '')
+                cognome_legale = cognome_legale or (parts[1] if len(parts) > 1 else '')
+            if not nome_legale and not cognome_legale and user.name:
+                parts = (user.name or '').strip().split(None, 1)
+                nome_legale = nome_legale or (parts[0] if parts else '')
+                cognome_legale = cognome_legale or (parts[1] if len(parts) > 1 else '')
             associato_vals = {
                 'email': user_email,
                 'user_id': user.id,
-                'codice_fiscale': codice_fiscale or (associato.codice_fiscale if associato else False),
+                'nome_legale': nome_legale or (associato.nome_legale if associato else False),
+                'cognome_legale': cognome_legale or (associato.cognome_legale if associato else False),
+                'nome_elezione': nome_elezione or (associato.nome_elezione if associato else False),
+                'no_codice_fiscale': no_codice_fiscale,
+                'codice_fiscale': codice_fiscale or (associato.codice_fiscale if associato and not no_codice_fiscale else False) if not no_codice_fiscale else False,
                 'data_nascita': data_nascita or (associato.data_nascita if associato else False),
                 'luogo_nascita': luogo_nascita or (associato.luogo_nascita if associato else False),
                 'street': street or (associato.street if associato else False),
@@ -135,10 +152,15 @@ class TesseramentoController(http.Controller):
                 'country_id': int(country_id) if country_id else (associato.country_id.id if associato else False),
                 'phone': telefono or (associato.phone if associato else False),
             }
-            if associato:
-                associato.write(associato_vals)
-            else:
-                associato = Associato.create(associato_vals)
+            try:
+                if associato:
+                    associato.write(associato_vals)
+                else:
+                    associato = Associato.create(associato_vals)
+            except ValidationError as e:
+                return request.render('associazioni_culturali.tesseramento_error', {
+                    'error': str(e),
+                })
 
             # Aggiorna anche il partner per indirizzo/telefono
             if user.partner_id:
@@ -513,7 +535,11 @@ class TesseramentoController(http.Controller):
                 })
             associato = associati[0]
 
-            codice_fiscale = post.get('codice_fiscale', '').strip()
+            no_codice_fiscale = post.get('no_codice_fiscale') in ('on', '1', 'true', 'yes')
+            codice_fiscale = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            nome_legale = post.get('nome_legale', '').strip()
+            cognome_legale = post.get('cognome_legale', '').strip()
+            nome_elezione = post.get('nome_elezione', '').strip()
             data_nascita = post.get('data_nascita', '').strip()
             luogo_nascita = post.get('luogo_nascita', '').strip()
             street = post.get('street', '').strip()
@@ -525,8 +551,15 @@ class TesseramentoController(http.Controller):
             telefono = post.get('telefono', '').strip()
             note = post.get('note', '').strip()
 
-            associato_vals = {}
-            if codice_fiscale:
+            associato_vals = {'no_codice_fiscale': no_codice_fiscale}
+            if nome_legale:
+                associato_vals['nome_legale'] = nome_legale
+            if cognome_legale:
+                associato_vals['cognome_legale'] = cognome_legale
+            associato_vals['nome_elezione'] = nome_elezione or False
+            if no_codice_fiscale:
+                associato_vals['codice_fiscale'] = False
+            elif codice_fiscale:
                 associato_vals['codice_fiscale'] = codice_fiscale
             if data_nascita:
                 associato_vals['data_nascita'] = data_nascita
@@ -547,7 +580,12 @@ class TesseramentoController(http.Controller):
             if telefono:
                 associato_vals['phone'] = telefono
             if associato_vals:
-                associato.sudo().write(associato_vals)
+                try:
+                    associato.sudo().write(associato_vals)
+                except ValidationError as e:
+                    return request.render('associazioni_culturali.tesseramento_error', {
+                        'error': str(e),
+                    })
 
             if user.partner_id:
                 partner_vals = {}

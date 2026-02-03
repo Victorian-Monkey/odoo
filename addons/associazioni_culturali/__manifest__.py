@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Associazioni Culturali',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'category': 'Services',
     'summary': 'Gestione associazioni culturali',
     'description': """

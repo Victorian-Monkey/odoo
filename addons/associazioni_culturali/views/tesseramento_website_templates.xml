@@ -60,15 +60,50 @@
                                         
                                         <t t-if="is_logged_in">
                                             <t t-set="associato_prefill" t-value="user.associato_ids[0] if user.associato_ids else None"/>
+                                            <t t-set="account_name" t-value="(user.partner_id and user.partner_id.name) or user.name or ''"/>
+                                            <t t-set="account_name_parts" t-value="account_name.split()"/>
+                                            <t t-set="nome_legale_prefill" t-value="(associato_prefill and associato_prefill.nome_legale) or (account_name_parts[0] if account_name_parts else '')"/>
+                                            <t t-set="cognome_legale_prefill" t-value="(associato_prefill and associato_prefill.cognome_legale) or (' '.join(account_name_parts[1:]) if len(account_name_parts) > 1 else '')"/>
                                             <hr class="my-4"/>
                                             <h5 class="mb-3">Dati Fiscali</h5>
                                             
-                                            <div class="mb-3">
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="nome_legale" class="form-label">Nome legale</label>
+                                                    <input type="text" name="nome_legale" id="nome_legale" class="form-control"
+                                                           t-att-value="nome_legale_prefill"
+                                                           placeholder="Nome"/>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="cognome_legale" class="form-label">Cognome legale</label>
+                                                    <input type="text" name="cognome_legale" id="cognome_legale" class="form-control"
+                                                           t-att-value="cognome_legale_prefill"
+                                                           placeholder="Cognome"/>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="nome_elezione" class="form-label">Nome di elezione</label>
+                                                    <input type="text" name="nome_elezione" id="nome_elezione" class="form-control"
+                                                           t-att-value="associato_prefill and associato_prefill.nome_elezione or ''"
+                                                           placeholder="Nome con cui desideri essere indicato"/>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale" 
+                                                       class="form-check-input" value="on"
+                                                       t-att-checked="associato_prefill and associato_prefill.no_codice_fiscale"/>
+                                                <label for="no_codice_fiscale" class="form-check-label">
+                                                    Non ho residenza italiana, dunque non ho codice fiscale
+                                                </label>
+                                            </div>
+                                            
+                                            <div t-attf-class="mb-3 js-cf-group #{(associato_prefill and associato_prefill.no_codice_fiscale) and 'd-none' or ''}">
                                                 <label for="codice_fiscale" class="form-label">
-                                                    Codice Fiscale <span class="text-danger">*</span>
+                                                    Codice Fiscale <span class="text-danger js-cf-required">*</span>
                                                 </label>
                                                 <input type="text" name="codice_fiscale" id="codice_fiscale" 
-                                                       class="form-control" required="required"
+                                                       class="form-control js-cf-input"
+                                                       t-att-required="not (associato_prefill and associato_prefill.no_codice_fiscale)"
                                                        t-att-value="associato_prefill and associato_prefill.codice_fiscale or ''"
                                                        placeholder="Inserisci il tuo codice fiscale"/>
                                             </div>
@@ -228,6 +263,23 @@
                                             </t>
                                         </div>
                                     </form>
+                                    <script>
+                                        (function() {
+                                            var form = document.querySelector('form[action="/tesseramento/submit"]');
+                                            if (!form) return;
+                                            var cb = form.querySelector('input[name="no_codice_fiscale"]');
+                                            var group = form.querySelector('.js-cf-group');
+                                            if (!cb || !group) return;
+                                            function toggle() {
+                                                var hide = cb.checked;
+                                                group.classList.toggle('d-none', hide);
+                                                var inp = group.querySelector('.js-cf-input');
+                                                if (inp) inp.required = !hide;
+                                            }
+                                            cb.addEventListener('change', toggle);
+                                            toggle();
+                                        })();
+                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -347,6 +399,7 @@
                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                                     <span><t t-esc="a.email"/> — <t t-esc="a.codice_fiscale or 'N/D'"/></span>
                                                     <form method="post" t-att-action="'/my/associato/reclama/' + str(a.id)" style="display: inline;">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                         <input type="hidden" name="redirect" t-att-value="redirect or '/my/tessere'"/>
                                                         <button type="submit" class="btn btn-primary btn-sm">Associa a me</button>
                                                     </form>
@@ -519,6 +572,11 @@
                                     </div>
                                     
                                     <form method="post" action="/my/tessere/rinnova" class="mt-4">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <t t-set="account_name_r" t-value="(user.partner_id and user.partner_id.name) or user.name or ''"/>
+                                        <t t-set="account_name_parts_r" t-value="account_name_r.split()"/>
+                                        <t t-set="nome_legale_r" t-value="(associato and associato.nome_legale) or (account_name_parts_r[0] if account_name_parts_r else '')"/>
+                                        <t t-set="cognome_legale_r" t-value="(associato and associato.cognome_legale) or (' '.join(account_name_parts_r[1:]) if len(account_name_parts_r) > 1 else '')"/>
                                         <div class="mb-3">
                                             <label for="associazione_id" class="form-label">
                                                 Associazione <span class="text-danger">*</span>
@@ -554,12 +612,43 @@
                                         <hr class="my-4"/>
                                         <h5 class="mb-3">Conferma Dati Fiscali</h5>
                                         
-                                        <div class="mb-3">
-                                            <label for="codice_fiscale" class="form-label">
-                                                Codice Fiscale <span class="text-danger">*</span>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="nome_legale_confirm" class="form-label">Nome legale</label>
+                                                <input type="text" name="nome_legale" id="nome_legale_confirm" class="form-control"
+                                                       t-att-value="nome_legale_r"
+                                                       placeholder="Nome"/>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="cognome_legale_confirm" class="form-label">Cognome legale</label>
+                                                <input type="text" name="cognome_legale" id="cognome_legale_confirm" class="form-control"
+                                                       t-att-value="cognome_legale_r"
+                                                       placeholder="Cognome"/>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="nome_elezione_confirm" class="form-label">Nome di elezione</label>
+                                                <input type="text" name="nome_elezione" id="nome_elezione_confirm" class="form-control"
+                                                       t-att-value="associato and associato.nome_elezione or ''"
+                                                       placeholder="Nome con cui desideri essere indicato"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale_confirm" 
+                                                   class="form-check-input js-no-cf" value="on"
+                                                   t-att-checked="associato and associato.no_codice_fiscale"/>
+                                            <label for="no_codice_fiscale_confirm" class="form-check-label">
+                                                Non ho residenza italiana, dunque non ho codice fiscale
                                             </label>
-                                            <input type="text" name="codice_fiscale" id="codice_fiscale" 
-                                                   class="form-control" required="required"
+                                        </div>
+                                        
+                                        <div t-attf-class="mb-3 js-cf-group-confirm #{(associato and associato.no_codice_fiscale) and 'd-none' or ''}">
+                                            <label for="codice_fiscale_confirm" class="form-label">
+                                                Codice Fiscale <span class="text-danger js-cf-required">*</span>
+                                            </label>
+                                            <input type="text" name="codice_fiscale" id="codice_fiscale_confirm" 
+                                                   class="form-control js-cf-input"
+                                                   t-att-required="not (associato and associato.no_codice_fiscale)"
                                                    t-att-value="associato and associato.codice_fiscale or ''"
                                                    placeholder="Inserisci il tuo codice fiscale"/>
                                         </div>
@@ -713,6 +802,23 @@
                                             </a>
                                         </div>
                                     </form>
+                                    <script>
+                                        (function() {
+                                            var form = document.querySelector('form[action="/my/tessere/rinnova"]');
+                                            if (!form) return;
+                                            var cb = form.querySelector('input[name="no_codice_fiscale"]');
+                                            var group = form.querySelector('.js-cf-group-confirm');
+                                            if (!cb || !group) return;
+                                            function toggle() {
+                                                var hide = cb.checked;
+                                                group.classList.toggle('d-none', hide);
+                                                var inp = group.querySelector('.js-cf-input');
+                                                if (inp) inp.required = !hide;
+                                            }
+                                            cb.addEventListener('change', toggle);
+                                            toggle();
+                                        })();
+                                    </script>
                                 </div>
                             </div>
                         </div>

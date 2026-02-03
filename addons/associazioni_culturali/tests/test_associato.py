@@ -156,6 +156,27 @@ class TestAssociato(TransactionCase):
                 'country_id': self.env.ref('base.it').id,
             })
 
+    def test_no_codice_fiscale_optional(self):
+        """Con no_codice_fiscale il CF non è obbligatorio e la validazione viene saltata"""
+        a = self.Associato.create({
+            'email': 'nocf@test.com',
+            'no_codice_fiscale': True,
+            'codice_fiscale': False,
+            'country_id': self.env.ref('base.it').id,
+        })
+        self.assertTrue(a.no_codice_fiscale)
+        self.assertFalse(a.codice_fiscale)
+
+    def test_codice_fiscale_coerenza_data_nascita(self):
+        """CF incoerente con data di nascita solleva ValidationError"""
+        with self.assertRaises(ValidationError):
+            self.Associato.create({
+                'email': 'cfdate@test.com',
+                'codice_fiscale': 'RSSMRA80A01H501X',  # 01/01/1980
+                'data_nascita': date(1985, 6, 15),
+                'country_id': self.env.ref('base.it').id,
+            })
+
     def test_action_reclama(self):
         """Reclamo profilo: utente con stessa email può associare"""
         associato_senza_user = self.Associato.create({
