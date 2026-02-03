@@ -2,6 +2,9 @@
 
 from odoo import models, fields, api, _
 from datetime import datetime, timedelta
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class Tessera(models.Model):
@@ -31,6 +34,11 @@ class Tessera(models.Model):
     currency_id = fields.Many2one('res.currency', string='Valuta', 
                                    default=lambda self: self.env.company.currency_id)
     note = fields.Text(string='Note')
+    invia_email_conferma = fields.Boolean(
+        string='Invia email di conferma al socio',
+        default=True,
+        help='Se attivo, alla creazione della tessera viene inviata un\'email al socio con i dettagli. Disattivare solo in creazione da backend se non si desidera inviare.',
+    )
 
     @api.depends('piano_id', 'associato_id', 'associazione_id', 'data_emissione')
     def _compute_name(self):
@@ -51,7 +59,24 @@ class Tessera(models.Model):
         # Ricalcola il nome ora che i record hanno id (non si può usare id in @api.depends)
         records._compute_name()
         records.flush_recordset(['name'])
+        # Invia email di conferma per le tessere con invia_email_conferma=True
+        for record in records:
+            if record.invia_email_conferma:
+                record._send_email_conferma_tessera()
         return records
+
+    def _send_email_conferma_tessera(self):
+        """Invia email di conferma al socio: tessera generata."""
+        self.ensure_one()
+        try:
+            template = self.env.ref('associazioni_culturali.email_template_tessera_creata', False)
+            if template and self.associato_id.email:
+                template.send_mail(self.id, force_send=True)
+        except Exception as e:
+            _logger.warning(
+                'Impossibile inviare email di conferma tessera %s: %s',
+                self.id, str(e)
+            )
 
     @api.depends('piano_id', 'data_emissione', 'piano_id.tipo', 'piano_id.anno_riferimento')
     def _compute_data_scadenza(self):

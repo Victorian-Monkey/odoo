@@ -51,24 +51,9 @@ class TesseramentoPending(models.Model):
                     'tessera_id': tessera.id,
                     'stato': 'completed',
                 })
-                
-                # Invia email di conferma
-                self._send_email_conferma(tessera)
-                
+                # L'email di conferma viene inviata in tessera.create()
                 return tessera
         return False
-
-    def _send_email_conferma(self, tessera):
-        """Invia email di conferma tesseramento"""
-        try:
-            template = self.env.ref('associazioni_culturali.email_template_tessera_creata', False)
-            if template and tessera.associato_id.email:
-                template.send_mail(tessera.id, force_send=True)
-        except Exception as e:
-            # Se il template non esiste o c'è un errore, logga ma non blocca
-            import logging
-            _logger = logging.getLogger(__name__)
-            _logger.warning(f"Impossibile inviare email di conferma tessera {tessera.id}: {str(e)}")
 
     @api.model
     def _cron_annulla_pending_scaduti(self):

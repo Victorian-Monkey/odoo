@@ -45,6 +45,7 @@
                             <field name="stato"/>
                             <field name="importo_pagato"/>
                             <field name="currency_id" invisible="1"/>
+                            <field name="invia_email_conferma"/>
                         </group>
                     </group>
                     <notebook>
