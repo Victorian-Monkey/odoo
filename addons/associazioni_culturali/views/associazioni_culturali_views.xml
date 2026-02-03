@@ -82,7 +82,7 @@
     <record id="action_associazione_culturale" model="ir.actions.act_window">
         <field name="name">Associazioni Culturali</field>
         <field name="res_model">associazione.culturale</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Crea la tua prima Associazione Culturale
@@ -163,7 +163,7 @@
     <record id="action_associato" model="ir.actions.act_window">
         <field name="name">Associati</field>
         <field name="res_model">associato</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 I profili associato vengono creati al tesseramento. Un utente con la stessa email può reclamarli dalla pagina "Reclama profilo".
