@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!-- Category for Associazioni Culturali groups (evita dipendenza da base.module_category_custom) -->
-        <record id="module_category_associazioni_culturali" model="res.groups">
-            <field name="name">Associazioni Culturali</field>
-        </record>
-
         <!-- Security Groups -->
         <record id="group_associazioni_culturali_manager" model="res.groups">
             <field name="name">Manager</field>
-            <field name="category_id" ref="module_category_associazioni_culturali"/>
+            <field name="category_id" ref="base.module_category_services"/>
         </record>
 
         <record id="group_associazioni_culturali_user" model="res.groups">
             <field name="name">User</field>
-            <field name="category_id" ref="module_category_associazioni_culturali"/>
+            <field name="category_id" ref="base.module_category_services"/>
         </record>
     </data>
 </odoo>
