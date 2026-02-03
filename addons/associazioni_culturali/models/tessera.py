@@ -32,11 +32,11 @@ class Tessera(models.Model):
                                    default=lambda self: self.env.company.currency_id)
     note = fields.Text(string='Note')
 
-    @api.depends('piano_id', 'associato_id', 'associazione_id', 'data_emissione', 'id')
+    @api.depends('piano_id', 'associato_id', 'associazione_id', 'data_emissione')
     def _compute_name(self):
         for record in self:
             if record.piano_id and record.associato_id and record.associazione_id:
-                # Formato: ASSOCIAZIONE-ASSOCIATO-ANNO-NUMERO
+                # Formato: ASSOCIAZIONE-ASSOCIATO-ANNO-NUMERO (id usato solo se già salvato)
                 anno = record.data_emissione.year if record.data_emissione else fields.Date.today().year
                 nome_associazione = record.associazione_id.name[:3].upper() if len(record.associazione_id.name) >= 3 else record.associazione_id.name.upper()
                 associato_id = record.associato_id.id if record.associato_id else 'N/A'
@@ -44,6 +44,14 @@ class Tessera(models.Model):
                 record.name = f"{nome_associazione}-{associato_id}-{anno}-{tessera_id}"
             else:
                 record.name = 'Nuova Tessera'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        # Ricalcola il nome ora che i record hanno id (non si può usare id in @api.depends)
+        records._compute_name()
+        records.flush_recordset(['name'])
+        return records
 
     @api.depends('piano_id', 'data_emissione', 'piano_id.tipo', 'piano_id.anno_riferimento')
     def _compute_data_scadenza(self):
