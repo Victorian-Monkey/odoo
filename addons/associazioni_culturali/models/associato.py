@@ -101,13 +101,27 @@ class Associato(models.Model):
             else:
                 record.name = _('Nuovo Associato')
 
+    @api.onchange('codice_fiscale')
+    def _onchange_codice_fiscale(self):
+        """Pulisce il codice fiscale rimuovendo spazi e caratteri non validi."""
+        if self.codice_fiscale:
+            # Pulisci il codice fiscale: rimuovi spazi, trattini e altri caratteri non validi
+            cf_raw = self.codice_fiscale.upper().strip()
+            # Rimuovi tutti i caratteri non alfanumerici
+            cf_clean = ''.join(c for c in cf_raw if c.isalnum())
+            if cf_clean != cf_raw:
+                self.codice_fiscale = cf_clean
+
     @api.constrains('codice_fiscale', 'no_codice_fiscale', 'data_nascita')
     def _check_codice_fiscale(self):
         """Valida formato, carattere di controllo e coerenza con data di nascita."""
         for record in self:
             if record.no_codice_fiscale or not record.codice_fiscale:
                 continue
+            # Il codice fiscale dovrebbe essere già pulito dall'onchange, ma puliamolo comunque per sicurezza
             cf = record.codice_fiscale.upper().strip()
+            # Rimuovi tutti i caratteri non alfanumerici (fallback se l'onchange non è stato chiamato)
+            cf = ''.join(c for c in cf if c.isalnum())
             if len(cf) != 16:
                 raise ValidationError(
                     _('Il codice fiscale deve essere esattamente di 16 caratteri.')

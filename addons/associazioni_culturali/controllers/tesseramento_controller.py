@@ -78,7 +78,13 @@ class TesseramentoController(http.Controller):
             associazione_id = post.get('associazione_id')
             piano_id = post.get('piano_id')
             no_codice_fiscale = post.get('no_codice_fiscale') in ('on', '1', 'true', 'yes')
-            codice_fiscale = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            # Pulisci il codice fiscale: rimuovi spazi, trattini e altri caratteri non validi, converti in maiuscolo
+            codice_fiscale_raw = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            if codice_fiscale_raw:
+                # Rimuovi tutti i caratteri non alfanumerici e converti in maiuscolo
+                codice_fiscale = ''.join(c for c in codice_fiscale_raw.upper() if c.isalnum())
+            else:
+                codice_fiscale = ''
             nome_legale = post.get('nome_legale', '').strip()
             cognome_legale = post.get('cognome_legale', '').strip()
             nome_elezione = post.get('nome_elezione', '').strip()
@@ -538,7 +544,13 @@ class TesseramentoController(http.Controller):
             associato = associati[0]
 
             no_codice_fiscale = post.get('no_codice_fiscale') in ('on', '1', 'true', 'yes')
-            codice_fiscale = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            # Pulisci il codice fiscale: rimuovi spazi, trattini e altri caratteri non validi, converti in maiuscolo
+            codice_fiscale_raw = post.get('codice_fiscale', '').strip() if not no_codice_fiscale else ''
+            if codice_fiscale_raw:
+                # Rimuovi tutti i caratteri non alfanumerici e converti in maiuscolo
+                codice_fiscale = ''.join(c for c in codice_fiscale_raw.upper() if c.isalnum())
+            else:
+                codice_fiscale = ''
             nome_legale = post.get('nome_legale', '').strip()
             cognome_legale = post.get('cognome_legale', '').strip()
             nome_elezione = post.get('nome_elezione', '').strip()
