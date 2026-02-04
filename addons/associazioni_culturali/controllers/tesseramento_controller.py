@@ -36,9 +36,10 @@ class TesseramentoController(http.Controller):
         user = request.env.user
         is_logged_in = user and not user._is_public() and user.id != request.website.user_id.id
         
-        # Ottieni associazioni attive
+        # Ottieni associazioni attive che consentono registrazione pubblica
         associazioni = request.env['associazione.culturale'].sudo().search([
-            ('attivo', '=', True)
+            ('attivo', '=', True),
+            ('consenti_registrazione_pubblica', '=', True)
         ])
         
         # Ottieni piani di tesseramento attivi
@@ -469,9 +470,10 @@ class TesseramentoController(http.Controller):
         if not piano_id and associato.tessera_attuale_id:
             piano_id = associato.tessera_attuale_id.piano_id.id
         
-        # Ottieni associazioni attive
+        # Ottieni associazioni attive che consentono registrazione pubblica
         associazioni = request.env['associazione.culturale'].sudo().search([
-            ('attivo', '=', True)
+            ('attivo', '=', True),
+            ('consenti_registrazione_pubblica', '=', True)
         ])
         
         # Ottieni piani attivi

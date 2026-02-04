@@ -20,6 +20,12 @@ class AssociazioneCulturale(models.Model):
     sito_web = fields.Char(string='Sito Web')
     data_costituzione = fields.Date(string='Data Costituzione')
     attivo = fields.Boolean(string='Attivo', default=True)
+    consenti_registrazione_pubblica = fields.Boolean(
+        string='Consenti Registrazione Pubblica',
+        default=True,
+        help='Se attivo, questa associazione sarà disponibile nella select del form di tesseramento pubblico',
+        tracking=True
+    )
     note = fields.Text(string='Note')
     
     # Relazioni inverse

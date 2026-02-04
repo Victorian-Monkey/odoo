@@ -11,6 +11,7 @@
                 <field name="codice_fiscale"/>
                 <field name="email"/>
                 <field name="attivo"/>
+                <field name="consenti_registrazione_pubblica"/>
             </list>
         </field>
     </record>
@@ -33,6 +34,7 @@
                             <field name="partita_iva"/>
                             <field name="data_costituzione"/>
                             <field name="attivo"/>
+                            <field name="consenti_registrazione_pubblica"/>
                         </group>
                         <group>
                             <field name="telefono"/>
@@ -77,6 +79,8 @@
                 <field name="email"/>
                 <filter string="Attive" name="attive" domain="[('attivo', '=', True)]"/>
                 <filter string="Non Attive" name="non_attive" domain="[('attivo', '=', False)]"/>
+                <filter string="Registrazione Pubblica" name="registrazione_pubblica" domain="[('consenti_registrazione_pubblica', '=', True)]"/>
+                <filter string="No Registrazione Pubblica" name="no_registrazione_pubblica" domain="[('consenti_registrazione_pubblica', '=', False)]"/>
             </search>
         </field>
     </record>

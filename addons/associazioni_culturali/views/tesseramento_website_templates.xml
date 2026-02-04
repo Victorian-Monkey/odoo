@@ -30,14 +30,20 @@
                                     </t>
                                     
                                     <form method="post" action="/tesseramento/submit" class="mt-4">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <div class="mb-3">
                                             <label for="associazione_id" class="form-label">
                                                 Associazione <span class="text-danger">*</span>
                                             </label>
                                             <select name="associazione_id" id="associazione_id" class="form-select" required="required">
-                                                <option value="">-- Seleziona Associazione --</option>
-                                                <t t-foreach="associazioni" t-as="associazione">
-                                                    <option t-att-value="associazione.id" t-esc="associazione.name"/>
+                                                <t t-if="len(associazioni) == 1">
+                                                    <option t-att-value="associazioni[0].id" selected="selected" t-esc="associazioni[0].name"/>
+                                                </t>
+                                                <t t-if="len(associazioni) != 1">
+                                                    <option value="">-- Seleziona Associazione --</option>
+                                                    <t t-foreach="associazioni" t-as="associazione">
+                                                        <option t-att-value="associazione.id" t-esc="associazione.name"/>
+                                                    </t>
                                                 </t>
                                             </select>
                                         </div>
@@ -582,12 +588,17 @@
                                                 Associazione <span class="text-danger">*</span>
                                             </label>
                                             <select name="associazione_id" id="associazione_id" class="form-select" required="required">
-                                                <option value="">-- Seleziona Associazione --</option>
-                                                <t t-foreach="associazioni" t-as="associazione">
-                                                    <option t-att-value="associazione.id" 
-                                                            t-att-selected="associazione_id and associazione_id == associazione.id">
-                                                        <t t-esc="associazione.name"/>
-                                                    </option>
+                                                <t t-if="len(associazioni) == 1 and not associazione_id">
+                                                    <option t-att-value="associazioni[0].id" selected="selected" t-esc="associazioni[0].name"/>
+                                                </t>
+                                                <t t-if="not (len(associazioni) == 1 and not associazione_id)">
+                                                    <option value="">-- Seleziona Associazione --</option>
+                                                    <t t-foreach="associazioni" t-as="associazione">
+                                                        <option t-att-value="associazione.id" 
+                                                                t-att-selected="associazione_id and associazione_id == associazione.id">
+                                                            <t t-esc="associazione.name"/>
+                                                        </option>
+                                                    </t>
                                                 </t>
                                             </select>
                                         </div>
