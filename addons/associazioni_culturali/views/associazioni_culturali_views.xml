@@ -185,7 +185,8 @@
     <!-- Menu -->
     <menuitem id="menu_associazioni_culturali_root"
               name="Associazioni"
-              sequence="10"/>
+              sequence="10"
+              web_icon="associazioni_culturali,static/description/icon.png"/>
 
     <menuitem id="menu_associato"
               name="Associati"
