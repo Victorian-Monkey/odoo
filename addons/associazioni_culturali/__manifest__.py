@@ -14,8 +14,9 @@
         * Gestione eventi e attività
     """,
     'author': 'Vicedomini Softworks',
-    'website': 'https://www.vicedominisoftworks.com',
+    'website': 'https://vicedominisoftworks.com/shop/odoo-extension-associations-6',
     'icon': 'static/description/icon.png',
+    'images': ['static/description/icon.png'],
     'price': 250.0,
     'currency': 'EUR',
     'depends': ['base', 'website', 'auth_signup', 'payment', 'mail', 'mass_mailing'],
