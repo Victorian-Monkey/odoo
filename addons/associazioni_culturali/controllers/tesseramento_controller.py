@@ -9,6 +9,18 @@ from types import SimpleNamespace
 _logger = logging.getLogger(__name__)
 
 
+def _post_getlist(data, key):
+    """Estrae una lista da POST: supporta sia dict (es. da sessione) che MultiDict (request.form)."""
+    if hasattr(data, 'getlist'):
+        return data.getlist(key)
+    val = data.get(key)
+    if val is None:
+        return []
+    if isinstance(val, list):
+        return val
+    return [val]
+
+
 def _mailing_lists_safe(env):
     """Restituisce liste mailing come oggetti con id, name e description (description vuoto se il modello non ce l'ha)."""
     if 'mailing.list' not in env:
@@ -191,7 +203,7 @@ class TesseramentoController(http.Controller):
 
             # Gestisci iscrizioni alle newsletter (se il modulo mass_mailing è installato)
             if 'mailing.list' in request.env and user.partner_id and user.partner_id.email:
-                mailing_list_ids = post.getlist('mailing_list_ids')  # getlist per checkbox multiple
+                mailing_list_ids = _post_getlist(post, 'mailing_list_ids')
                 
                 # Normalizza l'email per la ricerca
                 email_normalized = user.partner_id.email.lower().strip() if user.partner_id.email else None
@@ -621,7 +633,7 @@ class TesseramentoController(http.Controller):
                     user.partner_id.sudo().write(partner_vals)
 
             if 'mailing.list' in request.env and user.partner_id and user.partner_id.email:
-                mailing_list_ids = post.getlist('mailing_list_ids')
+                mailing_list_ids = _post_getlist(post, 'mailing_list_ids')
                 email_normalized = user.partner_id.email.lower().strip() if user.partner_id.email else None
                 if email_normalized:
                     existing_contact = request.env['mailing.contact'].sudo().search([
