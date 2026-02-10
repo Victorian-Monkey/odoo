@@ -226,6 +226,45 @@ class TestAssociato(TransactionCase):
         })
         self.assertEqual(a.codice_fiscale, 'RSSMRA80A01H501U')
 
+    def test_codice_fiscale_to_birth_date_19xx(self):
+        """_codice_fiscale_to_birth_date: due cifre 30-99 -> 19XX (1980, 1930)"""
+        Associato = self.env['associato']
+        # Anno 80 -> 1980
+        self.assertEqual(
+            Associato._codice_fiscale_to_birth_date('RSSMRA80A01H501U'),
+            date(1980, 1, 1),
+        )
+        # Anno 30 -> 1930
+        self.assertEqual(
+            Associato._codice_fiscale_to_birth_date('XXXXXX30A01XXXXX'),
+            date(1930, 1, 1),
+        )
+
+    def test_codice_fiscale_to_birth_date_20xx(self):
+        """_codice_fiscale_to_birth_date: due cifre 00-29 -> 20XX (2003, 2000)"""
+        Associato = self.env['associato']
+        # Anno 03 -> 2003
+        self.assertEqual(
+            Associato._codice_fiscale_to_birth_date('XXXXXX03A01XXXXX'),
+            date(2003, 1, 1),
+        )
+        # Anno 00 -> 2000
+        self.assertEqual(
+            Associato._codice_fiscale_to_birth_date('XXXXXX00A01XXXXX'),
+            date(2000, 1, 1),
+        )
+
+    def test_codice_fiscale_coerenza_data_nascita_2003(self):
+        """Associato nato nel 2003 con CF anno 03 passa la validazione (coerenza CF / data)"""
+        a = self.Associato.create({
+            'email': 'cf2003@test.com',
+            'codice_fiscale': 'RSSMRA03A01H501F',  # 01/01/2003, check digit corretto
+            'data_nascita': date(2003, 1, 1),
+            'country_id': self.env.ref('base.it').id,
+        })
+        self.assertEqual(a.codice_fiscale, 'RSSMRA03A01H501F')
+        self.assertEqual(a.data_nascita, date(2003, 1, 1))
+
     def test_action_reclama(self):
         """Reclamo profilo: utente con stessa email può associare"""
         associato_senza_user = self.Associato.create({

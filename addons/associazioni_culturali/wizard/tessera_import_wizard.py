@@ -41,13 +41,20 @@ class TesseraImportWizard(models.TransientModel):
             return ""
         return "".join(c for c in str(cf).upper().strip() if c.isalnum())
 
+    def _escape_ilike(self, value):
+        """Escape % and _ for use in ilike so they are not treated as wildcards."""
+        if not value:
+            return ""
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
     def _find_or_create_associato(self, row, Associato):
         email = self._normalize_email(row.get("email") or row.get("Email") or "")
         cf = self._normalize_cf(row.get("codice_fiscale") or row.get("codice fiscale") or row.get("cf") or "")
         nome = (row.get("nome_legale") or row.get("nome") or "").strip()
         cognome = (row.get("cognome_legale") or row.get("cognome") or "").strip()
         if email:
-            associato = Associato.search([("email", "=", email)], limit=1)
+            # Ricerca case-insensitive esatta: =ilike evita che Odoo aggiunga % (substring match)
+            associato = Associato.search([("email", "=ilike", email)], limit=1)
             if associato:
                 return associato, False
         if cf:

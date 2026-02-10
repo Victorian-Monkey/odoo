@@ -256,9 +256,10 @@ class Associato(models.Model):
         cf = cf.upper().strip()
         if len(cf) < 11:
             raise ValueError('Codice fiscale troppo corto')
-        # Anno: pos 7-8. Cifre 00-99 -> 1900-1999; lettera L-V + cifra -> 2000-2009
+        # Anno: pos 7-8. Due cifre: 00-29 -> 2000-2029, 30-99 -> 1930-1999; lettera L-V + cifra -> 2000-2009
         if cf[6].isdigit() and cf[7].isdigit():
-            year = 1900 + int(cf[6]) * 10 + int(cf[7])
+            yy = int(cf[6]) * 10 + int(cf[7])
+            year = 2000 + yy if yy <= 29 else 1900 + yy
         elif cf[6] in 'LMNPQRSTUV' and cf[7].isdigit():
             year = 2000 + int(cf[7])
         else:
