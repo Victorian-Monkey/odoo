@@ -53,8 +53,9 @@ class TesseraImportWizard(models.TransientModel):
         nome = (row.get("nome_legale") or row.get("nome") or "").strip()
         cognome = (row.get("cognome_legale") or row.get("cognome") or "").strip()
         if email:
-            # Ricerca case-insensitive esatta: =ilike evita che Odoo aggiunga % (substring match)
-            associato = Associato.search([("email", "=ilike", email)], limit=1)
+            # Ricerca case-insensitive esatta: =ilike evita che Odoo aggiunga %; escape _ e % nell'email
+            email_pattern = self._escape_ilike(email)
+            associato = Associato.search([("email", "=ilike", email_pattern)], limit=1)
             if associato:
                 return associato, False
         if cf:
