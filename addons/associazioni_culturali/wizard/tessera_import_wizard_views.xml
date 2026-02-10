@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tessera_import_wizard_form" model="ir.ui.view">
+        <field name="name">tessera.import.wizard.form</field>
+        <field name="model">tessera.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importa tessere da CSV">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Colonne CSV (separatore ; o ,): <b>email</b> (obbligatoria per nuovi membri), <b>codice_fiscale</b>, <b>nome_legale</b>, <b>cognome_legale</b>, <b>data_emissione</b> (opzionale, default oggi). I membri vengono cercati per email o codice fiscale; se non esistono vengono creati (serve almeno l&#39;email).
+                    </div>
+                    <group>
+                        <group>
+                            <field name="associazione_id"/>
+                            <field name="piano_id"/>
+                            <field name="data_file" filename="filename"/>
+                            <field name="filename" invisible="1"/>
+                            <field name="invia_email_conferma"/>
+                        </group>
+                    </group>
+                    <group invisible="not stato_import">
+                        <field name="stato_import" nolabel="1" readonly="1" class="oe_inline"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_import" string="Importa" type="object" class="btn-primary"/>
+                    <button string="Chiudi" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tessera_import_wizard" model="ir.actions.act_window">
+        <field name="name">Importa tessere da CSV</field>
+        <field name="res_model">tessera.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_tessera_import"
+              name="Importa tessere"
+              action="action_tessera_import_wizard"
+              parent="menu_tessere"
+              sequence="5"/>
+</odoo>

@@ -122,6 +122,15 @@
         <field name="arch" type="xml">
             <form string="Associato">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_invita_utente"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-envelope-o"
+                                string="Invia invito utente"
+                                invisible="not email"
+                                title="Crea l&#39;utente se non esiste, invia email di invito e associa al membro"/>
+                    </div>
                     <group>
                         <group>
                             <field name="name" readonly="1"/>

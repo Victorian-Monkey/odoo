@@ -46,12 +46,15 @@ class TesseramentoPending(models.Model):
                     'associazione_id': record.associazione_id.id,
                     'importo_pagato': record.importo,
                     'note': record.note,
+                    'invia_email_conferma': False,  # inviamo noi dopo, per avere tessera completa
                 })
                 record.write({
                     'tessera_id': tessera.id,
                     'stato': 'completed',
                 })
-                # L'email di conferma viene inviata in tessera.create()
+                # Invia email di conferma dopo la creazione (tessera completa e committata)
+                if tessera.associato_id.email:
+                    tessera._send_email_conferma_tessera()
                 return tessera
         return False
 

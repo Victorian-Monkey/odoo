@@ -323,3 +323,91 @@ class Associato(models.Model):
             raise UserError(_('Questo profilo è già associato a un altro utente.'))
         self.write({'user_id': user.id})
         return True
+
+    def action_invita_utente(self):
+        """
+        Crea l'utente (portale) se non esiste, invia l'email di invito e associa l'utente al membro.
+        Se l'utente esiste già (stessa email), lo associa e invia comunque l'email di reset password come invito.
+        """
+        self.ensure_one()
+        email = (self.email or '').strip().lower()
+        if not email:
+            raise UserError(_('Impossibile inviare l\'invito: l\'associato non ha un indirizzo email.'))
+        if self.user_id:
+            # Già collegato: invia di nuovo l'email di reset come "invito a accedere"
+            self.user_id.sudo().action_reset_password()
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Invito inviato'),
+                    'message': _('È stata inviata un\'email a %s con il link per accedere.') % self.email,
+                    'type': 'success',
+                    'sticky': False,
+                },
+            }
+        User = self.env['res.users'].sudo()
+        partner_obj = self.env['res.partner'].sudo()
+        # Cerca utente esistente con stessa email (login o partner)
+        existing = User.search([
+            '|',
+            ('login', '=', email),
+            ('partner_id.email', '=', email),
+        ], limit=1)
+        if existing:
+            self.sudo().write({'user_id': existing.id})
+            existing.action_reset_password()
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Invito inviato'),
+                    'message': _('Utente esistente collegato. È stata inviata un\'email a %s con il link per accedere.') % self.email,
+                    'type': 'success',
+                    'sticky': False,
+                },
+            }
+        # Crea nuovo utente portale
+        group_portal = self.env.ref('base.group_portal')
+        name = ' '.join(filter(None, [self.nome_legale, self.cognome_legale])).strip() or self.name or email
+        partner = partner_obj.search([('email', '=', email)], limit=1)
+        if not partner:
+            partner = partner_obj.create({
+                'name': name,
+                'email': email,
+            })
+        existing_user = User.search([('partner_id', '=', partner.id)], limit=1)
+        if existing_user:
+            # Il partner ha già un utente: usalo e collega
+            self.sudo().write({'user_id': existing_user.id})
+            existing_user.action_reset_password()
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Invito inviato'),
+                    'message': _('Utente collegato. È stata inviata un\'email a %s.') % self.email,
+                    'type': 'success',
+                    'sticky': False,
+                },
+            }
+        # Login deve essere univoco: usa email come login
+        user = User.with_context(no_reset_password=False).create({
+            'name': name,
+            'login': email,
+            'partner_id': partner.id,
+            'groups_id': [(6, 0, [group_portal.id])],
+        })
+        self.sudo().write({'user_id': user.id})
+        # Invio esplicito email invito (reset password): in alcune versioni non parte in create
+        user.action_reset_password()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Invito inviato'),
+                'message': _('È stato creato un utente e inviata un\'email a %s con il link per impostare la password e accedere.') % self.email,
+                'type': 'success',
+                'sticky': False,
+            },
+        }

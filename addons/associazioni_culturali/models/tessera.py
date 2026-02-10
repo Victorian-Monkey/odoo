@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 import logging
 
@@ -58,10 +59,11 @@ class Tessera(models.Model):
         records = super().create(vals_list)
         # Ricalcola il nome ora che i record hanno id (non si può usare id in @api.depends)
         records._compute_name()
-        records.flush_recordset(['name'])
+        # Flush tutti i campi (nome e campi computati data_scadenza, stato) prima dell'invio email
+        records.flush_recordset()
         # Invia email di conferma per le tessere con invia_email_conferma=True
         for record in records:
-            if record.invia_email_conferma:
+            if record.invia_email_conferma and record.associato_id.email:
                 record._send_email_conferma_tessera()
         return records
 
@@ -77,6 +79,23 @@ class Tessera(models.Model):
                 'Impossibile inviare email di conferma tessera %s: %s',
                 self.id, str(e)
             )
+
+    def action_reinvia_email_conferma(self):
+        """Reinvia l'email di conferma tessera al socio (da backend)."""
+        self.ensure_one()
+        if not self.associato_id.email:
+            raise UserError(_('Impossibile inviare: l\'associato non ha un indirizzo email.'))
+        self._send_email_conferma_tessera()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Email inviata'),
+                'message': _('Email di conferma tessera inviata a %s') % self.associato_id.email,
+                'type': 'success',
+                'sticky': False,
+            },
+        }
 
     @api.depends('piano_id', 'data_emissione', 'piano_id.tipo', 'piano_id.anno_riferimento')
     def _compute_data_scadenza(self):

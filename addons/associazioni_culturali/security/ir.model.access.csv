@@ -9,3 +9,4 @@ access_tessera_user,tessera.user,model_tessera,base.group_user,1,1,1,1
 access_tessera_manager,tessera.manager,model_tessera,base.group_system,1,1,1,1
 access_tesseramento_pending_user,tesseramento.pending.user,model_tesseramento_pending,base.group_user,1,0,1,0
 access_tesseramento_pending_manager,tesseramento.pending.manager,model_tesseramento_pending,base.group_system,1,1,1,1
+access_tessera_import_wizard_user,tessera.import.wizard.user,model_tessera_import_wizard,base.group_user,1,1,1,1

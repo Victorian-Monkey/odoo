@@ -28,6 +28,7 @@
         'views/associazioni_culturali_views.xml',
         'views/piano_tesseramento_views.xml',
         'views/tessera_views.xml',
+        'wizard/tessera_import_wizard_views.xml',
         'views/tesseramento_website_templates.xml',
     ],
     'demo': [],

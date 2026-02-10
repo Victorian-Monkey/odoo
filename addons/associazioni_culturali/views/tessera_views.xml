@@ -25,6 +25,9 @@
         <field name="arch" type="xml">
             <form string="Tessera">
                 <header>
+                    <button name="action_reinvia_email_conferma" string="Reinvia email conferma" type="object"
+                            invisible="not associato_id or not associato_id.email"
+                            title="Invia di nuovo l&#39;email di conferma tessera al socio"/>
                     <button name="action_annulla" string="Annulla" type="object" 
                             invisible="stato == 'annullata'" 
                             class="oe_highlight"/>
