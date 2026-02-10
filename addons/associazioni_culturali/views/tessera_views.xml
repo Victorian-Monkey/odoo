@@ -95,11 +95,15 @@
         </field>
     </record>
 
-    <!-- Menu -->
+    <!-- Menu: Tessere (parent) con Elenco e Import -->
     <menuitem id="menu_tessere"
               name="Tessere"
               sequence="40"
-              action="action_tessera"
               parent="menu_associazioni_culturali_root"/>
+    <menuitem id="menu_tessere_list"
+              name="Elenco tessere"
+              sequence="10"
+              action="action_tessera"
+              parent="menu_tessere"/>
 
 </odoo>

@@ -23,7 +23,7 @@ class TesseramentoPending(models.Model):
         ('paid', 'Pagato'),
         ('completed', 'Completato'),
         ('cancelled', 'Annullato'),
-    ], string='Stato', default='pending', tracking=True)
+    ], string='Stato', default='pending')
     note = fields.Text(string='Note')
     create_date = fields.Datetime(string='Data Creazione', readonly=True)
 

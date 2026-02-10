@@ -41,5 +41,5 @@
               name="Importa tessere"
               action="action_tessera_import_wizard"
               parent="menu_tessere"
-              sequence="5"/>
+              sequence="20"/>
 </odoo>

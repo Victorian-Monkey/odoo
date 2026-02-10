@@ -98,12 +98,11 @@ class Associato(models.Model):
     _order = 'email, id'
 
     name = fields.Char(string='Nome', compute='_compute_name', store=True, readonly=True)
-    email = fields.Char(string='Email', required=True, index=True, tracking=True)
-    nome_legale = fields.Char(string='Nome legale', tracking=True)
-    cognome_legale = fields.Char(string='Cognome legale', tracking=True)
+    email = fields.Char(string='Email', required=True, index=True)
+    nome_legale = fields.Char(string='Nome legale')
+    cognome_legale = fields.Char(string='Cognome legale')
     nome_elezione = fields.Char(
         string='Nome di elezione',
-        tracking=True,
         help='Nome con cui la persona desidera essere indicata (es. nome d\'arte, nome scelto).',
     )
     user_id = fields.Many2one(
@@ -112,27 +111,25 @@ class Associato(models.Model):
         ondelete='set null',
         help='Utente che ha reclamato questo profilo (stessa email). Vuoto se non ancora associato.',
     )
-    codice_fiscale = fields.Char(string='Codice Fiscale', tracking=True)
+    codice_fiscale = fields.Char(string='Codice Fiscale')
     no_codice_fiscale = fields.Boolean(
         string='Non ho residenza italiana / codice fiscale',
         default=False,
-        tracking=True,
         help='Spuntare se non si possiede codice fiscale italiano (es. non residenti in Italia).',
     )
-    data_nascita = fields.Date(string='Data di Nascita', tracking=True)
-    luogo_nascita = fields.Char(string='Luogo di Nascita', tracking=True)
-    street = fields.Char(string='Via', tracking=True)
-    street2 = fields.Char(string='Via 2', tracking=True)
-    city = fields.Char(string='Città', tracking=True)
-    zip = fields.Char(string='CAP', tracking=True)
-    state_id = fields.Many2one('res.country.state', string='Provincia', tracking=True)
+    data_nascita = fields.Date(string='Data di Nascita')
+    luogo_nascita = fields.Char(string='Luogo di Nascita')
+    street = fields.Char(string='Via')
+    street2 = fields.Char(string='Via 2')
+    city = fields.Char(string='Città')
+    zip = fields.Char(string='CAP')
+    state_id = fields.Many2one('res.country.state', string='Provincia')
     country_id = fields.Many2one(
         'res.country',
         string='Paese',
         default=lambda self: self.env.ref('base.it', raise_if_not_found=False),
-        tracking=True,
     )
-    phone = fields.Char(string='Telefono', tracking=True)
+    phone = fields.Char(string='Telefono')
 
     tessere_ids = fields.One2many('tessera', 'associato_id', string='Tessere', readonly=True)
 
