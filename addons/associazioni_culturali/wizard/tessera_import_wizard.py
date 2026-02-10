@@ -53,11 +53,17 @@ class TesseraImportWizard(models.TransientModel):
         nome = (row.get("nome_legale") or row.get("nome") or "").strip()
         cognome = (row.get("cognome_legale") or row.get("cognome") or "").strip()
         if email:
-            # Ricerca case-insensitive esatta: =ilike evita che Odoo aggiunga %; escape _ e % nell'email
-            email_pattern = self._escape_ilike(email)
-            associato = Associato.search([("email", "=ilike", email_pattern)], limit=1)
-            if associato:
-                return associato, False
+            # Match esatto case-insensitive senza wildcard: LOWER(email)=LOWER(%s) evita che
+            # _ e % in ILIKE vengano interpretati come wildcard (email con underscore/percentuale sono valide RFC)
+            self.env.cr.execute(
+                "SELECT id FROM " + Associato._table + " WHERE LOWER(email) = LOWER(%s) LIMIT 1",
+                (email,),
+            )
+            row = self.env.cr.fetchone()
+            if row:
+                associato = Associato.browse(row[0])
+                if associato.exists():
+                    return associato, False
         if cf:
             associato = Associato.search([("codice_fiscale", "=", cf)], limit=1)
             if associato:
