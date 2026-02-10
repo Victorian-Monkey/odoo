@@ -45,7 +45,9 @@ class TestAssociato(TransactionCase):
         self.associato = self.Associato.create({
             'email': 'test@example.com',
             'user_id': self.user.id,
-            'codice_fiscale': 'RSSMRA80A01H501X',
+            'cognome_legale': 'Rossi',
+            'nome_legale': 'Mario',
+            'codice_fiscale': 'RSSMRA80A01H501U',  # Rossi Mario 01/01/1980, carattere di controllo corretto
             'data_nascita': date(1980, 1, 1),
             'luogo_nascita': 'Roma',
             'street': 'Via Test 123',
@@ -59,7 +61,7 @@ class TestAssociato(TransactionCase):
         """Campi anagrafici salvati sull'associato"""
         self.assertEqual(self.associato.email, 'test@example.com')
         self.assertEqual(self.associato.user_id, self.user)
-        self.assertEqual(self.associato.codice_fiscale, 'RSSMRA80A01H501X')
+        self.assertEqual(self.associato.codice_fiscale, 'RSSMRA80A01H501U')
         self.assertEqual(self.associato.data_nascita, date(1980, 1, 1))
         self.assertEqual(self.associato.city, 'Roma')
 
@@ -139,13 +141,13 @@ class TestAssociato(TransactionCase):
         self.assertEqual(len(self.associato.tessere_ids), 2)
 
     def test_codice_fiscale_validation_valid(self):
-        """Codice fiscale italiano valido"""
+        """Codice fiscale italiano valido (carattere di controllo corretto)"""
         a = self.Associato.create({
             'email': 'cf@test.com',
-            'codice_fiscale': 'RSSMRA80A01H501X',
+            'codice_fiscale': 'RSSMRA80A01H501U',
             'country_id': self.env.ref('base.it').id,
         })
-        self.assertEqual(a.codice_fiscale, 'RSSMRA80A01H501X')
+        self.assertEqual(a.codice_fiscale, 'RSSMRA80A01H501U')
 
     def test_codice_fiscale_validation_invalid(self):
         """Codice fiscale non valido"""
@@ -172,16 +174,64 @@ class TestAssociato(TransactionCase):
         with self.assertRaises(ValidationError):
             self.Associato.create({
                 'email': 'cfdate@test.com',
-                'codice_fiscale': 'RSSMRA80A01H501X',  # 01/01/1980
+                'codice_fiscale': 'RSSMRA80A01H501U',  # 01/01/1980
                 'data_nascita': date(1985, 6, 15),
                 'country_id': self.env.ref('base.it').id,
             })
+
+    def test_codice_fiscale_obbligatorio_se_no_flag(self):
+        """Se no_codice_fiscale non è segnato, il CF vuoto solleva ValidationError"""
+        with self.assertRaises(ValidationError):
+            self.Associato.create({
+                'email': 'nocf@test.com',
+                'codice_fiscale': '',
+                'country_id': self.env.ref('base.it').id,
+            })
+
+    def test_codice_fiscale_carattere_controllo_errato(self):
+        """CF con carattere di controllo errato solleva ValidationError"""
+        with self.assertRaises(ValidationError):
+            self.Associato.create({
+                'email': 'cfctrl@test.com',
+                'codice_fiscale': 'RSSMRA80A01H501X',  # X errato, corretto sarebbe U
+                'country_id': self.env.ref('base.it').id,
+            })
+
+    def test_codice_fiscale_match_cognome(self):
+        """CF con parti cognome non coerenti con cognome_legale solleva ValidationError"""
+        with self.assertRaises(ValidationError):
+            self.Associato.create({
+                'email': 'cognome@test.com',
+                'cognome_legale': 'Bianchi',
+                'codice_fiscale': 'RSSMRA80A01H501U',  # RSS = Rossi, non Bianchi (BNC)
+                'country_id': self.env.ref('base.it').id,
+            })
+
+    def test_codice_fiscale_match_nome(self):
+        """CF con parti nome non coerenti con nome_legale solleva ValidationError"""
+        with self.assertRaises(ValidationError):
+            self.Associato.create({
+                'email': 'nome@test.com',
+                'nome_legale': 'Giuseppe',
+                'codice_fiscale': 'RSSMRA80A01H501U',  # MRA = Mario, non Giuseppe (GSP)
+                'country_id': self.env.ref('base.it').id,
+            })
+
+    def test_codice_fiscale_senza_nome_cognome_ok(self):
+        """Se nome/cognome legale sono vuoti, il match viene saltato e il CF valido è accettato"""
+        a = self.Associato.create({
+            'email': 'solo@test.com',
+            'codice_fiscale': 'RSSMRA80A01H501U',
+            'country_id': self.env.ref('base.it').id,
+        })
+        self.assertEqual(a.codice_fiscale, 'RSSMRA80A01H501U')
 
     def test_action_reclama(self):
         """Reclamo profilo: utente con stessa email può associare"""
         associato_senza_user = self.Associato.create({
             'email': 'test@example.com',
             'user_id': False,
+            'no_codice_fiscale': True,
         })
         associato_senza_user.with_user(self.user).action_reclama()
         self.assertEqual(associato_senza_user.user_id, self.user)
@@ -196,6 +246,7 @@ class TestAssociato(TransactionCase):
         associato = self.Associato.create({
             'email': 'test@example.com',
             'user_id': False,
+            'no_codice_fiscale': True,
         })
         with self.assertRaises(UserError):
             associato.with_user(other_user).action_reclama()

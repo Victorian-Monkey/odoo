@@ -6,17 +6,20 @@ import re
 from datetime import date
 
 # Tabelle per il carattere di controllo del codice fiscale italiano
+# Secondo l'algoritmo ufficiale: https://www.alus.it/pubs/CodiceFiscale/index.php?lang=it
+# Valori per caratteri in posizione DISPARI (1, 3, 5, 7, 9, 11, 13, 15)
 _CF_ODD = {
+    '0': 1, '1': 0, '2': 5, '3': 7, '4': 9, '5': 13, '6': 15, '7': 17, '8': 19, '9': 21,
+    'A': 1, 'B': 0, 'C': 5, 'D': 7, 'E': 9, 'F': 13, 'G': 15, 'H': 17, 'I': 19, 'J': 21,
+    'K': 2, 'L': 4, 'M': 18, 'N': 20, 'O': 11, 'P': 3, 'Q': 6, 'R': 8, 'S': 12,
+    'T': 14, 'U': 16, 'V': 10, 'W': 22, 'X': 25, 'Y': 24, 'Z': 23,
+}
+# Valori per caratteri in posizione PARI (2, 4, 6, 8, 10, 12, 14) - doc: 0-25
+_CF_EVEN = {
     '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
     'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7, 'I': 8, 'J': 9,
     'K': 10, 'L': 11, 'M': 12, 'N': 13, 'O': 14, 'P': 15, 'Q': 16, 'R': 17, 'S': 18,
     'T': 19, 'U': 20, 'V': 21, 'W': 22, 'X': 23, 'Y': 24, 'Z': 25,
-}
-_CF_EVEN = {
-    '0': 0, '1': 2, '2': 4, '3': 6, '4': 8, '5': 10, '6': 12, '7': 14, '8': 16, '9': 18,
-    'A': 0, 'B': 2, 'C': 4, 'D': 6, 'E': 8, 'F': 10, 'G': 12, 'H': 14, 'I': 16, 'J': 18,
-    'K': 20, 'L': 22, 'M': 24, 'N': 26, 'O': 28, 'P': 30, 'Q': 32, 'R': 34, 'S': 36,
-    'T': 38, 'U': 40, 'V': 42, 'W': 44, 'X': 46, 'Y': 48, 'Z': 50,
 }
 _CF_CONTROL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 _CF_MONTH = {
@@ -26,6 +29,67 @@ _CF_YEAR_LETTER = {
     '0': 1900, '1': 1901, '2': 1902, '3': 1903, '4': 1904, '5': 1905, '6': 1906, '7': 1907, '8': 1908, '9': 1909,
     'L': 2000, 'M': 2001, 'N': 2002, 'P': 2003, 'Q': 2004, 'R': 2005, 'S': 2006, 'T': 2007, 'U': 2008, 'V': 2009,
 }
+
+# Sostituzione caratteri accentati per il calcolo CF (solo lettere A-Z)
+_CF_ACCENT_MAP = {
+    'À': 'A', 'Á': 'A', 'Â': 'A', 'Ä': 'A', 'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',
+    'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I', 'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Ö': 'O',
+    'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U',
+}
+_CF_VOWELS = set('AEIOU')
+
+
+def _normalize_cf_string(s):
+    """Normalizza una stringa per il confronto con le parti nome/cognome del CF: maiuscolo, solo A-Z."""
+    if not s or not s.strip():
+        return ''
+    s = s.upper().strip()
+    # Un solo spazio tra parole (cognomi composti), poi rimuovi spazi
+    s = ' '.join(s.split())
+    result = []
+    for c in s:
+        if c in _CF_ACCENT_MAP:
+            result.append(_CF_ACCENT_MAP[c])
+        elif 'A' <= c <= 'Z':
+            result.append(c)
+    return ''.join(result).replace(' ', '')
+
+
+def _cf_letters_from_surname(surname):
+    """
+    Ricava le 3 lettere del cognome per il codice fiscale: 1ª, 2ª, 3ª consonante;
+    se non bastano, vocali in ordine; se ancora non bastano, padding con X.
+    Cognomi composti: considerati come una sola parola (spazi rimossi).
+    """
+    letters = _normalize_cf_string(surname)
+    if not letters:
+        return ''
+    consonants = [c for c in letters if c not in _CF_VOWELS]
+    vowels = [c for c in letters if c in _CF_VOWELS]
+    combined = consonants + vowels
+    result = (combined + ['X', 'X', 'X'])[:3]
+    return ''.join(result)
+
+
+def _cf_letters_from_name(name):
+    """
+    Ricava le 3 lettere del nome per il codice fiscale: 1ª, 3ª e 4ª consonante;
+    se le consonanti sono meno di 4, si prendono le prime 3; se meno di 3,
+    stesso criterio del cognome (consonanti + vocali + X).
+    """
+    letters = _normalize_cf_string(name)
+    if not letters:
+        return ''
+    consonants = [c for c in letters if c not in _CF_VOWELS]
+    vowels = [c for c in letters if c in _CF_VOWELS]
+    if len(consonants) >= 4:
+        result = [consonants[0], consonants[2], consonants[3]]
+    elif len(consonants) >= 3:
+        result = consonants[:3]
+    else:
+        combined = consonants + vowels
+        result = (combined + ['X', 'X', 'X'])[:3]
+    return ''.join(result)
 
 
 class Associato(models.Model):
@@ -112,15 +176,20 @@ class Associato(models.Model):
             if cf_clean != cf_raw:
                 self.codice_fiscale = cf_clean
 
-    @api.constrains('codice_fiscale', 'no_codice_fiscale', 'data_nascita')
+    @api.constrains('codice_fiscale', 'no_codice_fiscale', 'data_nascita', 'nome_legale', 'cognome_legale')
     def _check_codice_fiscale(self):
-        """Valida formato, carattere di controllo e coerenza con data di nascita."""
+        """Valida formato, carattere di controllo, coerenza con data di nascita e match con cognome/nome."""
         for record in self:
-            if record.no_codice_fiscale or not record.codice_fiscale:
+            # Se ha segnato "non ho codice fiscale", il CF non è obbligatorio e non si valida
+            if record.no_codice_fiscale:
                 continue
-            # Il codice fiscale dovrebbe essere già pulito dall'onchange, ma puliamolo comunque per sicurezza
+            # Se non ha segnato "non ho codice fiscale" ma il CF è vuoto -> errore
+            if not record.codice_fiscale or not record.codice_fiscale.strip():
+                raise ValidationError(
+                    _('Il codice fiscale è obbligatorio. Se non sei residente in Italia, spunta "Non ho residenza italiana / codice fiscale".')
+                )
+            # Pulizia CF
             cf = record.codice_fiscale.upper().strip()
-            # Rimuovi tutti i caratteri non alfanumerici (fallback se l'onchange non è stato chiamato)
             cf = ''.join(c for c in cf if c.isalnum())
             if len(cf) != 16:
                 raise ValidationError(
@@ -136,7 +205,7 @@ class Associato(models.Model):
                         'Verifica i 16 caratteri (lettere e numeri secondo lo standard italiano).'
                     )
                 )
-            # Carattere di controllo (posizione 16, indice 15)
+            # Carattere di controllo (posizioni 1-15: dispari usano _CF_ODD, pari usano _CF_EVEN)
             total = 0
             for i, c in enumerate(cf[:15]):
                 total += _CF_EVEN.get(c, 0) if (i + 1) % 2 == 0 else _CF_ODD.get(c, 0)
@@ -155,11 +224,33 @@ class Associato(models.Model):
                                 'Il codice fiscale non è coerente con la data di nascita indicata. '
                                 'Data nel CF: %s; data indicata: %s.'
                             )
-                            % (record.data_nascita.strftime('%d/%m/%Y'), cf_date.strftime('%d/%m/%Y'))
+                            % (cf_date.strftime('%d/%m/%Y'), record.data_nascita.strftime('%d/%m/%Y'))
                         )
                 except (ValueError, KeyError) as e:
                     raise ValidationError(
                         _('Impossibile verificare la data di nascita nel codice fiscale: %s') % str(e)
+                    )
+            # Match con cognome legale (pos. 1-3 del CF)
+            if record.cognome_legale and record.cognome_legale.strip():
+                expected_surname = _cf_letters_from_surname(record.cognome_legale)
+                if expected_surname and cf[0:3] != expected_surname:
+                    raise ValidationError(
+                        _(
+                            'Il codice fiscale non è coerente con il cognome indicato: '
+                            'le prime tre lettere del CF (%s) non corrispondono al cognome "%s".'
+                        )
+                        % (cf[0:3], record.cognome_legale.strip())
+                    )
+            # Match con nome legale (pos. 4-6 del CF)
+            if record.nome_legale and record.nome_legale.strip():
+                expected_name = _cf_letters_from_name(record.nome_legale)
+                if expected_name and cf[3:6] != expected_name:
+                    raise ValidationError(
+                        _(
+                            'Il codice fiscale non è coerente con il nome indicato: '
+                            'le lettere del nome nel CF (%s) non corrispondono al nome "%s".'
+                        )
+                        % (cf[3:6], record.nome_legale.strip())
                     )
 
     @api.model
