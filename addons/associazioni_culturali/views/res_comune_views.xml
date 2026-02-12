@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_comune_tree" model="ir.ui.view">
+        <field name="name">res.comune.tree</field>
+        <field name="model">res.comune</field>
+        <field name="arch" type="xml">
+            <list string="Comuni">
+                <field name="name"/>
+                <field name="provincia"/>
+                <field name="codice_catastale"/>
+                <field name="cap"/>
+                <field name="codice_istat"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_res_comune_form" model="ir.ui.view">
+        <field name="name">res.comune.form</field>
+        <field name="model">res.comune</field>
+        <field name="arch" type="xml">
+            <form string="Comune">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="provincia"/>
+                            <field name="codice_catastale"/>
+                        </group>
+                        <group>
+                            <field name="cap"/>
+                            <field name="codice_istat"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_res_comune_search" model="ir.ui.view">
+        <field name="name">res.comune.search</field>
+        <field name="model">res.comune</field>
+        <field name="arch" type="xml">
+            <search string="Cerca Comuni">
+                <field name="name"/>
+                <field name="codice_catastale"/>
+                <field name="provincia"/>
+                <field name="cap"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_res_comune" model="ir.actions.act_window">
+        <field name="name">Comuni</field>
+        <field name="res_model">res.comune</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_configuration"
+              name="Configurazione"
+              parent="menu_associazioni_culturali_root"
+              sequence="100"/>
+
+    <menuitem id="menu_res_comune"
+              name="Comuni"
+              action="action_res_comune"
+              parent="menu_configuration"
+              sequence="10"/>
+</odoo>

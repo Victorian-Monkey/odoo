@@ -16,19 +16,19 @@
                                     <t t-if="not is_logged_in">
                                         <div class="alert alert-info">
                                             <i class="fa fa-info-circle me-2"></i>
-                                            <strong>Attenzione:</strong> Per richiedere una tessera è necessario essere registrati. 
-                                            <a href="/web/login?redirect=/tesseramento" class="alert-link">Accedi</a> o 
+                                            <strong>Attenzione:</strong> Per richiedere una tessera è necessario essere registrati.
+                                            <a href="/web/login?redirect=/tesseramento" class="alert-link">Accedi</a> o
                                             <a href="/web/signup?redirect=/tesseramento" class="alert-link">Registrati</a>.
                                         </div>
                                     </t>
-                                    
+
                                     <t t-if="is_logged_in">
                                         <div class="alert alert-success">
                                             <i class="fa fa-check-circle me-2"></i>
                                             Benvenuto <strong t-esc="user.name"/>! Compila il form per richiedere la tua tessera.
                                         </div>
                                     </t>
-                                    
+
                                     <form method="post" action="/tesseramento/submit" class="mt-4">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <div class="mb-3">
@@ -47,7 +47,7 @@
                                                 </t>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="piano_id" class="form-label">
                                                 Piano Tesseramento <span class="text-danger">*</span>
@@ -56,14 +56,14 @@
                                                 <option value="">-- Seleziona Piano --</option>
                                                 <t t-foreach="piani" t-as="piano">
                                                     <option t-att-value="piano.id">
-                                                        <t t-esc="piano.name"/> - 
-                                                        <t t-esc="'Anno Solare' if piano.tipo == 'annuale_solare' else 'Calendario'"/> - 
+                                                        <t t-esc="piano.name"/> -
+                                                        <t t-if="piano.tipo == 'annuale_solare'">Anno Solare</t><t t-else="">Calendario</t> -
                                                         €<t t-esc="'{:.2f}'.format(piano.costo_tessera)"/>
                                                     </option>
                                                 </t>
                                             </select>
                                         </div>
-                                        
+
                                         <t t-if="is_logged_in">
                                             <t t-set="associato_prefill" t-value="user.associato_ids[0] if user.associato_ids else None"/>
                                             <t t-set="account_name" t-value="(user.partner_id and user.partner_id.name) or user.name or ''"/>
@@ -72,7 +72,7 @@
                                             <t t-set="cognome_legale_prefill" t-value="(associato_prefill and associato_prefill.cognome_legale) or (' '.join(account_name_parts[1:]) if len(account_name_parts) > 1 else '')"/>
                                             <hr class="my-4"/>
                                             <h5 class="mb-3">Dati Fiscali</h5>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
                                                     <label for="nome_legale" class="form-label">Nome legale</label>
@@ -93,88 +93,92 @@
                                                            placeholder="Nome con cui desideri essere indicato"/>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="mb-3 form-check">
-                                                <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale" 
+                                                <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale"
                                                        class="form-check-input" value="on"
                                                        t-att-checked="associato_prefill and associato_prefill.no_codice_fiscale"/>
                                                 <label for="no_codice_fiscale" class="form-check-label">
                                                     Non ho residenza italiana, dunque non ho codice fiscale
                                                 </label>
                                             </div>
-                                            
+
                                             <div t-attf-class="mb-3 js-cf-group #{(associato_prefill and associato_prefill.no_codice_fiscale) and 'd-none' or ''}">
                                                 <label for="codice_fiscale" class="form-label">
                                                     Codice Fiscale <span class="text-danger js-cf-required">*</span>
                                                 </label>
-                                                <input type="text" name="codice_fiscale" id="codice_fiscale" 
+                                                <input type="text" name="codice_fiscale" id="codice_fiscale"
                                                        class="form-control js-cf-input"
                                                        t-att-required="not (associato_prefill and associato_prefill.no_codice_fiscale)"
                                                        t-att-value="associato_prefill and associato_prefill.codice_fiscale or ''"
                                                        placeholder="Inserisci il tuo codice fiscale"/>
                                             </div>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="data_nascita" class="form-label">
                                                         Data di Nascita <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="date" name="data_nascita" id="data_nascita" 
+                                                    <input type="date" name="data_nascita" id="data_nascita"
                                                            class="form-control" required="required"
                                                            t-att-value="associato_prefill and associato_prefill.data_nascita or ''"/>
                                                 </div>
-                                                
+
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="luogo_nascita" class="form-label">
+                                                    <label for="comune_nascita_id" class="form-label">
                                                         Luogo di Nascita <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" name="luogo_nascita" id="luogo_nascita" 
-                                                           class="form-control" required="required"
-                                                           t-att-value="associato_prefill and associato_prefill.luogo_nascita or ''"
-                                                           placeholder="Città di nascita"/>
+                                                    <select name="comune_nascita_id" id="comune_nascita_id" class="form-control js-comune-select" required="required">
+                                                        <t t-if="associato_prefill and associato_prefill.comune_nascita_id">
+                                                            <option t-att-value="associato_prefill.comune_nascita_id.id" selected="selected">
+                                                                <t t-esc="associato_prefill.comune_nascita_id.name"/>
+                                                                <t t-if="associato_prefill.comune_nascita_id.provincia"> (<t t-esc="associato_prefill.comune_nascita_id.provincia"/>)</t>
+                                                            </option>
+                                                        </t>
+                                                    </select>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="mb-3">
                                                 <label for="street" class="form-label">
                                                     Via e Numero Civico <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="street" id="street" 
+                                                <input type="text" name="street" id="street"
                                                        class="form-control" required="required"
                                                        t-att-value="(associato_prefill and associato_prefill.street) or (user.partner_id and user.partner_id.street) or ''"
                                                        placeholder="Via, numero civico"/>
                                             </div>
-                                            
+
                                             <div class="mb-3">
                                                 <label for="street2" class="form-label">Indirizzo Secondario</label>
-                                                <input type="text" name="street2" id="street2" 
+                                                <input type="text" name="street2" id="street2"
                                                        class="form-control"
                                                        t-att-value="(associato_prefill and associato_prefill.street2) or (user.partner_id and user.partner_id.street2) or ''"
                                                        placeholder="Scala, interno, ecc."/>
                                             </div>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
                                                     <label for="zip" class="form-label">
                                                         CAP <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" name="zip" id="zip" 
+                                                    <input type="text" name="zip" id="zip"
                                                            class="form-control" required="required"
                                                            t-att-value="(associato_prefill and associato_prefill.zip) or (user.partner_id and user.partner_id.zip) or ''"
                                                            placeholder="CAP"/>
                                                 </div>
-                                                
+
                                                 <div class="col-md-8 mb-3">
                                                     <label for="city" class="form-label">
                                                         Città <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" name="city" id="city" 
+                                                    <input type="text" name="city" id="city"
                                                            class="form-control" required="required"
                                                            t-att-value="(associato_prefill and associato_prefill.city) or (user.partner_id and user.partner_id.city) or ''"
                                                            placeholder="Città"/>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="state_id" class="form-label">Provincia</label>
@@ -182,20 +186,20 @@
                                                         <option value="">-- Seleziona Provincia --</option>
                                                         <t t-set="country_states" t-value="request.env['res.country.state'].sudo().search([('country_id.code', '=', 'IT')])"/>
                                                         <t t-foreach="country_states" t-as="state">
-                                                            <option t-att-value="state.id" 
+                                                            <option t-att-value="state.id"
                                                                     t-att-selected="(associato_prefill and associato_prefill.state_id and associato_prefill.state_id.id == state.id) or (user.partner_id and user.partner_id.state_id and user.partner_id.state_id.id == state.id)">
                                                                 <t t-esc="state.name"/>
                                                             </option>
                                                         </t>
                                                     </select>
                                                 </div>
-                                                
+
                                                 <div class="col-md-6 mb-3">
                                                     <label for="country_id" class="form-label">Paese</label>
                                                     <select name="country_id" id="country_id" class="form-select">
                                                         <t t-set="countries" t-value="request.env['res.country'].sudo().search([])"/>
                                                         <t t-foreach="countries" t-as="country">
-                                                            <option t-att-value="country.id" 
+                                                            <option t-att-value="country.id"
                                                                     t-att-selected="(associato_prefill and associato_prefill.country_id and associato_prefill.country_id.id == country.id) or (user.partner_id and user.partner_id.country_id and user.partner_id.country_id.id == country.id) or country.code == 'IT'">
                                                                 <t t-esc="country.name"/>
                                                             </option>
@@ -203,23 +207,23 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="mb-3">
                                                 <label for="telefono" class="form-label">
                                                     Telefono <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="tel" name="telefono" id="telefono" 
+                                                <input type="tel" name="telefono" id="telefono"
                                                        class="form-control" required="required"
                                                        t-att-value="(associato_prefill and associato_prefill.phone) or (user.partner_id and user.partner_id.phone) or ''"
                                                        placeholder="Numero di telefono"/>
                                             </div>
-                                            
+
                                             <div class="mb-3">
                                                 <label for="note" class="form-label">Note</label>
                                                 <textarea name="note" id="note" class="form-control" rows="3"
                                                           placeholder="Note aggiuntive (opzionale)"></textarea>
                                             </div>
-                                            
+
                                             <t t-if="mailing_lists and len(mailing_lists) > 0">
                                                 <hr class="my-4"/>
                                                 <h5 class="mb-3">Interessi</h5>
@@ -239,13 +243,13 @@
                                                                 </t>
                                                             </t>
                                                             <div class="form-check mb-2">
-                                                                <input class="form-check-input" 
-                                                                       type="checkbox" 
-                                                                       name="mailing_list_ids" 
+                                                                <input class="form-check-input"
+                                                                       type="checkbox"
+                                                                       name="mailing_list_ids"
                                                                        t-att-id="'mailing_list_' + str(mailing_list.id)"
                                                                        t-att-value="mailing_list.id"
                                                                        t-att-checked="is_subscribed"/>
-                                                                <label class="form-check-label" 
+                                                                <label class="form-check-label"
                                                                        t-att-for="'mailing_list_' + str(mailing_list.id)">
                                                                     <t t-esc="mailing_list.name"/>
                                                                 </label>
@@ -255,7 +259,7 @@
                                                 </div>
                                             </t>
                                         </t>
-                                        
+
                                         <div class="d-grid gap-2 mt-4">
                                             <t t-if="is_logged_in">
                                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -270,8 +274,36 @@
                                         </div>
                                     </form>
                                     <script>
-                                        (function() {
-                                            var form = document.querySelector('form[action="/tesseramento/submit"]');
+                                       /* Select2 initialization for Comune */
+                                       if (typeof $ !== 'undefined' && $.fn.select2) {
+                                           $(document).ready(function() {
+                                               $('.js-comune-select').select2({
+                                                   width: '100%',
+                                                   placeholder: 'Cerca comune...',
+                                                   allowClear: true,
+                                                   minimumInputLength: 2,
+                                                   ajax: {
+                                                       url: '/tesseramento/comuni/search',
+                                                       dataType: 'json',
+                                                       delay: 250,
+                                                       data: function (params) {
+                                                           return {
+                                                               term: params.term
+                                                           };
+                                                       },
+                                                       processResults: function (data) {
+                                                           return {
+                                                               results: data.results
+                                                           };
+                                                       },
+                                                       cache: true
+                                                   }
+                                               });
+                                           });
+                                       }
+
+                                       (function() {
+                                           var form = document.querySelector('form[action="/tesseramento/submit"]');
                                             if (!form) return;
                                             var cb = form.querySelector('input[name="no_codice_fiscale"]');
                                             var group = form.querySelector('.js-cf-group');
@@ -312,7 +344,7 @@
                                         <i class="fa fa-check-circle fa-5x text-success"></i>
                                     </div>
                                     <h3 class="mb-3">La tua richiesta di tesseramento è stata inviata con successo!</h3>
-                                    
+
                                     <t t-if="tessera">
                                         <div class="alert alert-info text-start mt-4">
                                             <h5 class="alert-heading">Dettagli Tessera</h5>
@@ -320,16 +352,16 @@
                                             <p class="mb-1"><strong>Numero Tessera:</strong> <span t-esc="tessera.name"/></p>
                                             <p class="mb-1"><strong>Associazione:</strong> <span t-esc="associazione.name"/></p>
                                             <p class="mb-1"><strong>Piano:</strong> <span t-esc="piano.name"/></p>
-                                            <p class="mb-1"><strong>Data Emissione:</strong> 
-                                                <span t-esc="tessera.data_emissione.strftime('%d/%m/%Y') if tessera.data_emissione else ''"/>
+                                            <p class="mb-1"><strong>Data Emissione:</strong>
+                                                <span t-field="tessera.data_emissione" t-options='{"widget": "date"}'/>
                                             </p>
-                                            <p class="mb-1"><strong>Data Scadenza:</strong> 
-                                                <span t-esc="tessera.data_scadenza.strftime('%d/%m/%Y') if tessera.data_scadenza else ''"/>
+                                            <p class="mb-1"><strong>Data Scadenza:</strong>
+                                                <span t-field="tessera.data_scadenza" t-options='{"widget": "date"}'/>
                                             </p>
-                                            <p class="mb-0"><strong>Importo:</strong> €<span t-esc="'{:.2f}'.format(tessera.importo_pagato)"/></p>
+                                            <p class="mb-0"><strong>Importo:</strong> €<span t-field="tessera.importo_pagato" t-options='{"widget": "float", "precision": 2}'/></p>
                                         </div>
                                     </t>
-                                    
+
                                     <div class="mt-4">
                                         <a href="/tesseramento" class="btn btn-primary me-2">
                                             <i class="fa fa-plus me-2"></i>Richiedi Altra Tessera
@@ -403,7 +435,7 @@
                                         <ul class="list-group mb-4">
                                             <t t-foreach="associati_da_reclamare" t-as="a">
                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <span><t t-esc="a.email"/> — <t t-esc="a.codice_fiscale or 'N/D'"/></span>
+                                                    <span><t t-esc="a.email"/> — <t t-if="a.codice_fiscale" t-esc="a.codice_fiscale"/><t t-else="">N/D</t></span>
                                                     <form method="post" t-att-action="'/my/associato/reclama/' + str(a.id)" style="display: inline;">
                                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                         <input type="hidden" name="redirect" t-att-value="redirect or '/my/tessere'"/>
@@ -445,8 +477,8 @@
                                     <t t-if="not associati and not tessera_attuale_id">
                                         <div class="alert alert-info">
                                             <i class="fa fa-info-circle me-2"></i>
-                                            Non hai ancora un profilo associato collegato. Se hai già richiesto una tessera con la tua email, 
-                                            <a href="/my/associato/reclama" class="alert-link">reclama il profilo</a>. Altrimenti 
+                                            Non hai ancora un profilo associato collegato. Se hai già richiesto una tessera con la tua email,
+                                            <a href="/my/associato/reclama" class="alert-link">reclama il profilo</a>. Altrimenti
                                             <a href="/tesseramento" class="alert-link">richiedi una tessera</a>.
                                         </div>
                                     </t>
@@ -467,25 +499,25 @@
                                                     <p class="mb-1"><strong>Piano:</strong> <span t-esc="tessera_attuale_id.piano_id.name"/></p>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <p class="mb-1"><strong>Data Emissione:</strong> 
-                                                        <span t-esc="tessera_attuale_id.data_emissione.strftime('%d/%m/%Y') if tessera_attuale_id.data_emissione else ''"/>
+                                                    <p class="mb-1"><strong>Data Emissione:</strong>
+                                                        <span t-field="tessera_attuale_id.data_emissione" t-options='{"widget": "date"}'/>
                                                     </p>
-                                                    <p class="mb-1"><strong>Data Scadenza:</strong> 
-                                                        <span t-esc="tessera_attuale_id.data_scadenza.strftime('%d/%m/%Y') if tessera_attuale_id.data_scadenza else ''"/>
+                                                    <p class="mb-1"><strong>Data Scadenza:</strong>
+                                                        <span t-field="tessera_attuale_id.data_scadenza" t-options='{"widget": "date"}'/>
                                                     </p>
-                                                    <p class="mb-1"><strong>Importo:</strong> €<span t-esc="'{:.2f}'.format(tessera_attuale_id.importo_pagato)"/></p>
+                                                    <p class="mb-1"><strong>Importo:</strong> €<span t-field="tessera_attuale_id.importo_pagato" t-options='{"widget": "float", "precision": 2}'/></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </t>
-                                    
+
                                     <t t-if="not tessera_attuale_id and associati">
                                         <div class="alert alert-info">
                                             <i class="fa fa-info-circle me-2"></i>
                                             Non hai una tessera attiva. <a href="/tesseramento" class="alert-link">Richiedi una tessera</a>.
                                         </div>
                                     </t>
-                                    
+
                                     <!-- Form Rinnovo -->
                                     <t t-if="tessera_attuale_id or tessere_passate">
                                         <hr class="my-4"/>
@@ -496,7 +528,7 @@
                                             </a>
                                         </div>
                                     </t>
-                                    
+
                                     <!-- Tessere Passate -->
                                     <t t-if="tessere_passate">
                                         <hr class="my-4"/>
@@ -521,24 +553,24 @@
                                                             <td><span t-esc="tessera.associazione_id.name"/></td>
                                                             <td><span t-esc="tessera.piano_id.name"/></td>
                                                             <td>
-                                                                <span t-esc="tessera.data_emissione.strftime('%d/%m/%Y') if tessera.data_emissione else ''"/>
+                                                                <span t-field="tessera.data_emissione" t-options='{"widget": "date"}'/>
                                                             </td>
                                                             <td>
-                                                                <span t-esc="tessera.data_scadenza.strftime('%d/%m/%Y') if tessera.data_scadenza else ''"/>
+                                                                <span t-field="tessera.data_scadenza" t-options='{"widget": "date"}'/>
                                                             </td>
                                                             <td>
                                                                 <span class="badge" t-attf-class="bg-secondary if tessera.stato == 'scaduta' else bg-danger">
-                                                                    <t t-esc="tessera.stato == 'scaduta' and 'Scaduta' or 'Annullata'"/>
+                                                                    <t t-if="tessera.stato == 'scaduta'">Scaduta</t><t t-else="">Annullata</t>
                                                                 </span>
                                                             </td>
-                                                            <td>€<span t-esc="'{:.2f}'.format(tessera.importo_pagato)"/></td>
+                                                            <td>€<span t-field="tessera.importo_pagato" t-options='{"widget": "float", "precision": 2}'/></td>
                                                         </tr>
                                                     </t>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </t>
-                                    
+
                                     <div class="mt-4">
                                         <a href="/tesseramento" class="btn btn-primary me-2">
                                             <i class="fa fa-plus me-2"></i>Richiedi Nuova Tessera
@@ -576,7 +608,7 @@
                                         <i class="fa fa-info-circle me-2"></i>
                                         <strong>Conferma i tuoi dati</strong> e seleziona l'associazione e il piano per il rinnovo della tessera.
                                     </div>
-                                    
+
                                     <form method="post" action="/my/tessere/rinnova" class="mt-4">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <t t-set="account_name_r" t-value="(user.partner_id and user.partner_id.name) or user.name or ''"/>
@@ -594,7 +626,7 @@
                                                 <t t-if="not (len(associazioni) == 1 and not associazione_id)">
                                                     <option value="">-- Seleziona Associazione --</option>
                                                     <t t-foreach="associazioni" t-as="associazione">
-                                                        <option t-att-value="associazione.id" 
+                                                        <option t-att-value="associazione.id"
                                                                 t-att-selected="associazione_id and associazione_id == associazione.id">
                                                             <t t-esc="associazione.name"/>
                                                         </option>
@@ -602,7 +634,7 @@
                                                 </t>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="piano_id" class="form-label">
                                                 Piano Tesseramento <span class="text-danger">*</span>
@@ -610,19 +642,19 @@
                                             <select name="piano_id" id="piano_id" class="form-select" required="required">
                                                 <option value="">-- Seleziona Piano --</option>
                                                 <t t-foreach="piani" t-as="piano">
-                                                    <option t-att-value="piano.id" 
+                                                    <option t-att-value="piano.id"
                                                             t-att-selected="piano_id and piano_id == piano.id">
-                                                        <t t-esc="piano.name"/> - 
-                                                        <t t-esc="'Anno Solare' if piano.tipo == 'annuale_solare' else 'Calendario'"/> - 
+                                                        <t t-esc="piano.name"/> -
+                                                        <t t-if="piano.tipo == 'annuale_solare'">Anno Solare</t><t t-else="">Calendario</t> -
                                                         €<t t-esc="'{:.2f}'.format(piano.costo_tessera)"/>
                                                     </option>
                                                 </t>
                                             </select>
                                         </div>
-                                        
+
                                         <hr class="my-4"/>
                                         <h5 class="mb-3">Conferma Dati Fiscali</h5>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="nome_legale_confirm" class="form-label">Nome legale</label>
@@ -643,108 +675,112 @@
                                                        placeholder="Nome con cui desideri essere indicato"/>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3 form-check">
-                                            <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale_confirm" 
+                                            <input type="checkbox" name="no_codice_fiscale" id="no_codice_fiscale_confirm"
                                                    class="form-check-input js-no-cf" value="on"
                                                    t-att-checked="associato and associato.no_codice_fiscale"/>
                                             <label for="no_codice_fiscale_confirm" class="form-check-label">
                                                 Non ho residenza italiana, dunque non ho codice fiscale
                                             </label>
                                         </div>
-                                        
+
                                         <div t-attf-class="mb-3 js-cf-group-confirm #{(associato and associato.no_codice_fiscale) and 'd-none' or ''}">
                                             <label for="codice_fiscale_confirm" class="form-label">
                                                 Codice Fiscale <span class="text-danger js-cf-required">*</span>
                                             </label>
-                                            <input type="text" name="codice_fiscale" id="codice_fiscale_confirm" 
+                                            <input type="text" name="codice_fiscale" id="codice_fiscale_confirm"
                                                    class="form-control js-cf-input"
                                                    t-att-required="not (associato and associato.no_codice_fiscale)"
                                                    t-att-value="associato and associato.codice_fiscale or ''"
                                                    placeholder="Inserisci il tuo codice fiscale"/>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="data_nascita" class="form-label">
                                                     Data di Nascita <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="date" name="data_nascita" id="data_nascita" 
+                                                <input type="date" name="data_nascita" id="data_nascita"
                                                        class="form-control" required="required"
                                                        t-att-value="associato and associato.data_nascita or ''"/>
                                             </div>
-                                            
+
                                             <div class="col-md-6 mb-3">
-                                                <label for="luogo_nascita" class="form-label">
+                                                <label for="comune_nascita_id" class="form-label">
                                                     Luogo di Nascita <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="luogo_nascita" id="luogo_nascita" 
-                                                       class="form-control" required="required"
-                                                       t-att-value="associato and associato.luogo_nascita or ''"
-                                                       placeholder="Città di nascita"/>
+                                                <select name="comune_nascita_id" id="comune_nascita_id" class="form-control js-comune-select" required="required">
+                                                    <t t-if="associato and associato.comune_nascita_id">
+                                                        <option t-att-value="associato.comune_nascita_id.id" selected="selected">
+                                                            <t t-esc="associato.comune_nascita_id.name"/>
+                                                            <t t-if="associato.comune_nascita_id.provincia"> (<t t-esc="associato.comune_nascita_id.provincia"/>)</t>
+                                                        </option>
+                                                    </t>
+                                                </select>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="street" class="form-label">
                                                 Via e Numero Civico <span class="text-danger">*</span>
                                             </label>
-                                            <input type="text" name="street" id="street" 
+                                            <input type="text" name="street" id="street"
                                                    class="form-control" required="required"
                                                    t-att-value="(associato and associato.street) or (user.partner_id and user.partner_id.street) or ''"
                                                    placeholder="Via, numero civico"/>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="street2" class="form-label">Indirizzo Secondario</label>
-                                            <input type="text" name="street2" id="street2" 
+                                            <input type="text" name="street2" id="street2"
                                                    class="form-control"
                                                    t-att-value="(associato and associato.street2) or (user.partner_id and user.partner_id.street2) or ''"
                                                    placeholder="Scala, interno, ecc."/>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-4 mb-3">
                                                 <label for="zip" class="form-label">
                                                     CAP <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="zip" id="zip" 
+                                                <input type="text" name="zip" id="zip"
                                                        class="form-control" required="required"
                                                        t-att-value="(associato and associato.zip) or (user.partner_id and user.partner_id.zip) or ''"
                                                        placeholder="CAP"/>
                                             </div>
-                                            
+
                                             <div class="col-md-8 mb-3">
                                                 <label for="city" class="form-label">
                                                     Città <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" name="city" id="city" 
+                                                <input type="text" name="city" id="city"
                                                    class="form-control" required="required"
                                                    t-att-value="(associato and associato.city) or (user.partner_id and user.partner_id.city) or ''"
                                                    placeholder="Città"/>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="state_id" class="form-label">Provincia</label>
                                                 <select name="state_id" id="state_id" class="form-select">
                                                     <option value="">-- Seleziona Provincia --</option>
                                                     <t t-foreach="states" t-as="state">
-                                                        <option t-att-value="state.id" 
+                                                        <option t-att-value="state.id"
                                                                 t-att-selected="(associato and associato.state_id and associato.state_id.id == state.id) or (user.partner_id and user.partner_id.state_id and user.partner_id.state_id.id == state.id)">
                                                             <t t-esc="state.name"/>
                                                         </option>
                                                     </t>
                                                 </select>
                                             </div>
-                                            
+
                                             <div class="col-md-6 mb-3">
                                                 <label for="country_id" class="form-label">Paese</label>
                                                 <select name="country_id" id="country_id" class="form-select">
                                                     <option value="">-- Seleziona Paese --</option>
                                                     <t t-foreach="countries" t-as="country">
-                                                        <option t-att-value="country.id" 
+                                                        <option t-att-value="country.id"
                                                                 t-att-selected="(associato and associato.country_id and associato.country_id.id == country.id) or (user.partner_id and user.partner_id.country_id and user.partner_id.country_id.id == country.id) or country.code == 'IT'">
                                                             <t t-esc="country.name"/>
                                                         </option>
@@ -752,23 +788,23 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="telefono" class="form-label">
                                                 Telefono <span class="text-danger">*</span>
                                             </label>
-                                            <input type="tel" name="telefono" id="telefono" 
+                                            <input type="tel" name="telefono" id="telefono"
                                                    class="form-control" required="required"
                                                    t-att-value="(associato and associato.phone) or (user.partner_id and user.partner_id.phone) or ''"
                                                    placeholder="Numero di telefono"/>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="note" class="form-label">Note</label>
                                             <textarea name="note" id="note" class="form-control" rows="3"
                                                       placeholder="Note aggiuntive (opzionale)"></textarea>
                                         </div>
-                                        
+
                                         <t t-if="mailing_lists and len(mailing_lists) > 0">
                                             <hr class="my-4"/>
                                             <h5 class="mb-3">Interessi</h5>
@@ -788,13 +824,13 @@
                                                             </t>
                                                         </t>
                                                         <div class="form-check mb-2">
-                                                            <input class="form-check-input" 
-                                                                   type="checkbox" 
-                                                                   name="mailing_list_ids" 
+                                                            <input class="form-check-input"
+                                                                   type="checkbox"
+                                                                   name="mailing_list_ids"
                                                                    t-att-id="'mailing_list_' + str(mailing_list.id)"
                                                                    t-att-value="mailing_list.id"
                                                                    t-att-checked="is_subscribed"/>
-                                                            <label class="form-check-label" 
+                                                            <label class="form-check-label"
                                                                    t-att-for="'mailing_list_' + str(mailing_list.id)">
                                                                 <t t-esc="mailing_list.name"/>
                                                             </label>
@@ -803,7 +839,7 @@
                                                 </div>
                                             </div>
                                         </t>
-                                        
+
                                         <div class="d-grid gap-2 mt-4">
                                             <button type="submit" class="btn btn-primary btn-lg">
                                                 <i class="fa fa-check me-2"></i>Conferma e Paga
@@ -814,6 +850,34 @@
                                         </div>
                                     </form>
                                     <script>
+                                        /* Select2 initialization for Comune */
+                                        if (typeof $ !== 'undefined' && $.fn.select2) {
+                                            $(document).ready(function() {
+                                                $('.js-comune-select').select2({
+                                                    width: '100%',
+                                                    placeholder: 'Cerca comune...',
+                                                    allowClear: true,
+                                                    minimumInputLength: 2,
+                                                    ajax: {
+                                                        url: '/tesseramento/comuni/search',
+                                                        dataType: 'json',
+                                                        delay: 250,
+                                                        data: function (params) {
+                                                            return {
+                                                                term: params.term
+                                                            };
+                                                        },
+                                                        processResults: function (data) {
+                                                            return {
+                                                                results: data.results
+                                                            };
+                                                        },
+                                                        cache: true
+                                                    }
+                                                });
+                                            });
+                                        }
+
                                         (function() {
                                             var form = document.querySelector('form[action="/my/tessere/rinnova"]');
                                             if (!form) return;
