@@ -9,6 +9,7 @@ from odoo.exceptions import UserError, ValidationError
 # Tabelle per il carattere di controllo del codice fiscale italiano
 # Secondo l'algoritmo ufficiale: https://www.alus.it/pubs/CodiceFiscale/index.php?lang=it
 # Valori per caratteri in posizione DISPARI (1, 3, 5, 7, 9, 11, 13, 15)
+_CF_ODD = {
     "0": 1,
     "1": 0,
     "2": 5,
@@ -592,6 +593,5 @@ class Associato(models.Model):
                 % self.email,
                 "type": "success",
                 "sticky": False,
-                'sticky': False,
             },
         }
