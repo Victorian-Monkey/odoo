@@ -593,5 +593,6 @@ class Associato(models.Model):
                 % self.email,
                 "type": "success",
                 "sticky": False,
+                "sticky": False,
             },
         }
