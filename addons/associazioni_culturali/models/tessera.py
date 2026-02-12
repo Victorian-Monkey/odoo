@@ -9,6 +9,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
+class Tessera(models.Model):
     _name = "tessera"
     _description = _("Tessera")
     _inherit = ["mail.thread", "mail.activity.mixin"]
@@ -189,4 +190,4 @@ _logger = logging.getLogger(__name__)
             [("stato", "=", "attiva"), ("data_scadenza", "<", today)]
         )
         tessere_scadute.write({"stato": "scaduta"})
-        tessere_scadute.write({'stato': 'scaduta'})
+        tessere_scadute.write({"stato": "scaduta"})
