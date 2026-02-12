@@ -275,7 +275,7 @@
                                     </form>
                                     <script>
                                        /* Select2 initialization for Comune */
-                                       if (typeof $ !== 'undefined' && $.fn.select2) {
+                                       if (typeof $ !== 'undefined' &amp;&amp; $.fn.select2) {
                                            $(document).ready(function() {
                                                $('.js-comune-select').select2({
                                                    width: '100%',
@@ -851,7 +851,7 @@
                                     </form>
                                     <script>
                                         /* Select2 initialization for Comune */
-                                        if (typeof $ !== 'undefined' && $.fn.select2) {
+                                        if (typeof $ !== 'undefined' &amp;&amp; $.fn.select2) {
                                             $(document).ready(function() {
                                                 $('.js-comune-select').select2({
                                                     width: '100%',
