@@ -20,6 +20,12 @@
     "price": 250.0,
     "currency": "EUR",
     "depends": ["base", "website", "auth_signup", "payment", "mail", "mass_mailing"],
+    "assets": {
+        "website.assets_frontend": [
+            "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css",
+            "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js",
+        ],
+    },
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
