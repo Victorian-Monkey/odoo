@@ -56,8 +56,24 @@ class TesseramentoController(http.Controller):
     )
     def tesseramento_comuni_search(self, term="", **kw):
         """Cerca comuni per autocomplete (ritorna JSON per Select2)"""
-        domain = ["|", ("name", "ilike", term), ("codice_catastale", "ilike", term)]
-        comuni = request.env["res.comune"].sudo().search(domain, limit=30)
+        term = (term or kw.get("q") or "").strip()
+        if len(term) >= 1:
+            domain = [
+                "|",
+                ("name", "ilike", term),
+                ("codice_catastale", "ilike", term),
+            ]
+            comuni = (
+                request.env["res.comune"]
+                .sudo()
+                .search(domain, order="name", limit=30)
+            )
+        else:
+            comuni = (
+                request.env["res.comune"]
+                .sudo()
+                .search([], order="name", limit=30)
+            )
         results = [
             {
                 "id": c.id,

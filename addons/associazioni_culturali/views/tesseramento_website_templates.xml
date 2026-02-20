@@ -279,22 +279,19 @@
                                            $(document).ready(function() {
                                                $('.js-comune-select').select2({
                                                    width: '100%',
-                                                   placeholder: 'Cerca comune...',
+                                                   placeholder: 'Digita per cercare (min. 1 carattere)...',
                                                    allowClear: true,
-                                                   minimumInputLength: 2,
+                                                   minimumInputLength: 1,
                                                    ajax: {
                                                        url: '/tesseramento/comuni/search',
                                                        dataType: 'json',
-                                                       delay: 250,
+                                                       delay: 200,
                                                        data: function (params) {
-                                                           return {
-                                                               term: params.term
-                                                           };
+                                                           return { term: params.term || params.q || '' };
                                                        },
                                                        processResults: function (data) {
-                                                           return {
-                                                               results: data.results
-                                                           };
+                                                           var res = (data &amp;&amp; data.results) ? data.results : [];
+                                                           return { results: res };
                                                        },
                                                        cache: true
                                                    }
@@ -855,22 +852,19 @@
                                             $(document).ready(function() {
                                                 $('.js-comune-select').select2({
                                                     width: '100%',
-                                                    placeholder: 'Cerca comune...',
+                                                    placeholder: 'Digita per cercare (min. 1 carattere)...',
                                                     allowClear: true,
-                                                    minimumInputLength: 2,
+                                                    minimumInputLength: 1,
                                                     ajax: {
                                                         url: '/tesseramento/comuni/search',
                                                         dataType: 'json',
-                                                        delay: 250,
+                                                        delay: 200,
                                                         data: function (params) {
-                                                            return {
-                                                                term: params.term
-                                                            };
+                                                            return { term: params.term || params.q || '' };
                                                         },
                                                         processResults: function (data) {
-                                                            return {
-                                                                results: data.results
-                                                            };
+                                                            var res = (data &amp;&amp; data.results) ? data.results : [];
+                                                            return { results: res };
                                                         },
                                                         cache: true
                                                     }
