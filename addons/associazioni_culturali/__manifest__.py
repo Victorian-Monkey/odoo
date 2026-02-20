@@ -23,6 +23,7 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
         "data/email_templates.xml",
         "data/cron_data.xml",
         "data/res.comune.csv",

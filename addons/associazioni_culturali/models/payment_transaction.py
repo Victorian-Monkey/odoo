@@ -13,19 +13,17 @@ class PaymentTransaction(models.Model):
         """Override per completare il tesseramento dopo il pagamento"""
         super()._finalize_post_processing()
         
-        # Se la transazione è completata, verifica se è per un tesseramento
+        # Se la transazione è completata, verifica se è per un tesseramento.
+        # Usa sudo() perché questo metodo può essere eseguito nel contesto dell'utente
+        # portale (callback di pagamento), che non ha permessi su tesseramento.pending/tessera.
         if self.state == 'done':
-            # Cerca tesseramento pending collegato a questa transazione
-            tesseramento_pending = self.env['tesseramento.pending'].search([
+            tesseramento_pending = self.env['tesseramento.pending'].sudo().search([
                 ('transaction_id', '=', self.id),
                 ('stato', 'in', ['pending', 'paid'])
             ], limit=1)
             
             if tesseramento_pending:
-                # Aggiorna lo stato a paid
                 tesseramento_pending.write({'stato': 'paid'})
-                
-                # Completa il tesseramento
                 tessera = tesseramento_pending.action_completa_tessera()
                 if tessera:
                     _logger.info(f"Tesseramento completato per transazione {self.id}, tessera creata: {tessera.id}")

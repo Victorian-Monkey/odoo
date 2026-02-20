@@ -3,14 +3,17 @@ access_res_comune_public,res.comune public,model_res_comune,base.group_public,1,
 access_res_comune_portal,res.comune portal,model_res_comune,base.group_portal,1,0,0,0
 access_res_comune_user,res.comune user,model_res_comune,base.group_user,1,0,0,0
 access_res_comune_manager,res.comune manager,model_res_comune,base.group_system,1,1,1,1
+access_associato_portal,associato.portal,model_associato,base.group_portal,1,1,0,0
 access_associato_user,associato.user,model_associato,base.group_user,1,1,1,0
 access_associato_manager,associato.manager,model_associato,base.group_system,1,1,1,1
 access_associazione_culturale_user,associazione.culturale.user,model_associazione_culturale,base.group_user,1,1,1,1
 access_associazione_culturale_manager,associazione.culturale.manager,model_associazione_culturale,base.group_system,1,1,1,1
 access_piano_tesseramento_user,piano.tesseramento.user,model_piano_tesseramento,base.group_user,1,1,1,1
 access_piano_tesseramento_manager,piano.tesseramento.manager,model_piano_tesseramento,base.group_system,1,1,1,1
+access_tessera_portal,tessera.portal,model_tessera,base.group_portal,1,0,0,0
 access_tessera_user,tessera.user,model_tessera,base.group_user,1,1,1,1
 access_tessera_manager,tessera.manager,model_tessera,base.group_system,1,1,1,1
+access_tesseramento_pending_portal,tesseramento.pending.portal,model_tesseramento_pending,base.group_portal,1,0,0,0
 access_tesseramento_pending_user,tesseramento.pending.user,model_tesseramento_pending,base.group_user,1,0,1,0
 access_tesseramento_pending_manager,tesseramento.pending.manager,model_tesseramento_pending,base.group_system,1,1,1,1
 access_tessera_import_wizard_user,tessera.import.wizard.user,model_tessera_import_wizard,base.group_user,1,1,1,1

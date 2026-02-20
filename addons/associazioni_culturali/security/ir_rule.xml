@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Portal: può vedere solo i profili associato collegati al proprio account -->
+        <record id="rule_associato_portal_own" model="ir.rule">
+            <field name="name">Associato: utenti portale vedono solo i propri</field>
+            <field name="model_id" ref="model_associato"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+        <!-- Portal: può vedere solo le tessere dei propri profili associato -->
+        <record id="rule_tessera_portal_own" model="ir.rule">
+            <field name="name">Tessera: utenti portale vedono solo le proprie</field>
+            <field name="model_id" ref="model_tessera"/>
+            <field name="domain_force">[('associato_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+        <!-- Portal: può vedere solo i tesseramenti pending collegati ai propri associati -->
+        <record id="rule_tesseramento_pending_portal_own" model="ir.rule">
+            <field name="name">Tesseramento pending: utenti portale vedono solo i propri</field>
+            <field name="model_id" ref="model_tesseramento_pending"/>
+            <field name="domain_force">[('associato_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+    </data>
+</odoo>
